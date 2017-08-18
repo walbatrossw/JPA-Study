@@ -1,5 +1,6 @@
-package com.doubles.jpastudy.entity;
+package com.doubles.jpastudy;
 
 public enum OrderStatus {
     ORDER, CANCEL
 }
+

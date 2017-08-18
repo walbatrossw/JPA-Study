@@ -1,4 +1,4 @@
-package com.doubles.jpastudy.entity;
+package com.doubles.jpastudy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
