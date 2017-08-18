@@ -1,6 +1,8 @@
 package com.doubles.jpastudy;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Team {
@@ -10,6 +12,10 @@ public class Team {
     private String id;
 
     private String name;
+
+    /* == 양방향 연관관계 매핑 == */
+    @OneToMany(mappedBy = "team")   // 1:N 관계 매핑, mappedBy속성 : 반대쪽 매핑의 필드 이름값
+    private List<Member> members = new ArrayList<Member>();
 
     // 기본 생성자
     public Team() {
@@ -37,11 +43,12 @@ public class Team {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return "Team{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+    public List<Member> getMembers() {
+        return members;
     }
+
+    public void setMembers(List<Member> members) {
+        this.members = members;
+    }
+
 }

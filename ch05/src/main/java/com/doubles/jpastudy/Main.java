@@ -31,11 +31,17 @@ public class Main {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
-            // 비지니스 로직
-            testSave(em);       // 저장
-            queryLogicJoin(em); // 조회
-            updateRelation(em); // 수정
-            delete(em);         // 연관관계 제거, 삭제
+            /* == 비지니스 로직 == */
+            // 단항향 연관관계
+//            testSave(em);       // 저장
+//            queryLogicJoin(em); // 조회
+//            updateRelation(em); // 수정
+//            delete(em);         // 연관관계 제거, 삭제
+
+            // 양방향 연관관계
+            testSaveBothSide(em);   // 저장
+            //testSaveBothSideNonOwner(em);
+            /* == 비지니스 로직 == */
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,6 +52,7 @@ public class Main {
         emf.close();
     }
 
+    /* == 단방향 == */
     // 연관관계 사용 - 저장
     private static void testSave(EntityManager em) {
         // 팀01 저장
@@ -127,5 +134,51 @@ public class Main {
 
         // 연관된 엔티티 제거
         em.remove(team3);
+    }
+
+    /* == 단방향 == */
+
+    // 1:N 방향으로 객체 그래프 탐색
+//    private static void biDirection(EntityManager em) {
+//        Team team1 = new Team("team01", "팀01");
+//        em.persist(team1);
+//
+//        Member member1 = new Member("member01", "회원01");
+//        member1.setTeam(team1); // 연관관계 설정 member01 ---> team01
+//        em.persist(member1);
+//
+//        Member member2 = new Member("member02", "회원02");
+//        member2.setTeam(team1); // 연관관계 설정 member02 ---> team02
+//        em.persist(member2);
+//
+//        Team findTeam = em.find(Team.class, "team01");
+//        System.out.println(findTeam);
+//        List<Member> members = findTeam.getMembers();
+//        System.out.println(members);
+//
+//        for (Member member : members) {
+//            System.out.println("member.username = " + member.getUsername());
+//        }
+//    }
+    // 양방향 연관관계 저장
+    private static void testSaveBothSide(EntityManager em) {
+        // 팀01 저장
+        Team team1 = new Team("team01", "팀01");
+        em.persist(team1);
+        System.out.println("team1 = " + team1);
+
+        Member member1 = new Member("member01", "회원01");
+        member1.setTeam(team1);             // 연관관계 설정 member01 ---> team01
+        //team1.getMembers().add(member1);    // 연관관계 설정 team1 ---> member01
+        em.persist(member1);
+
+        Member member2 = new Member("member02", "회원02");
+        member2.setTeam(team1);             // 연관관계 설정 member02 ---> team02
+        //team1.getMembers().add(member2);    // 연관관계 설정 team1 ---> member02
+        em.persist(member2);
+
+        System.out.println(member1.getTeam());
+        System.out.println(member2.getTeam());
+        System.out.println("member01 = " + team1.getMembers().toString());
     }
 }
