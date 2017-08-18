@@ -1,9 +1,8 @@
 package com.doubles.jpastudy;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Member {
@@ -18,6 +17,20 @@ public class Member {
     private String city;    // 도시
     private String street;  // 번지
     private String zipcode; // 우편번호
+
+    // 주문들
+    @OneToMany(mappedBy = "member") // 1:n 관계 매핑
+    private List<Order> orders = new ArrayList<Order>();
+
+    public Member() {
+    }
+
+    public Member(String name, String city, String street, String zipcode) {
+        this.name = name;
+        this.city = city;
+        this.street = street;
+        this.zipcode = zipcode;
+    }
 
     public Long getId() {
         return id;
@@ -57,5 +70,25 @@ public class Member {
 
     public void setZipcode(String zipcode) {
         this.zipcode = zipcode;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", city='" + city + '\'' +
+                ", street='" + street + '\'' +
+                ", zipcode='" + zipcode + '\'' +
+                ", orders=" + orders +
+                '}';
     }
 }
