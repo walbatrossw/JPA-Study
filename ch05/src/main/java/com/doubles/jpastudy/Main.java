@@ -35,6 +35,7 @@ public class Main {
             testSave(em);       // 저장
             queryLogicJoin(em); // 조회
             updateRelation(em); // 수정
+            delete(em);         // 연관관계 제거, 삭제
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,7 +52,6 @@ public class Main {
         Team team1 = new Team("team01", "팀01");
         em.persist(team1);
         System.out.println("team1 = " + team1);
-
 
         // 회원01 저장
         Member member1 = new Member("member01", "회원01");
@@ -94,5 +94,38 @@ public class Main {
         Member member1 = em.find(Member.class, "member01");
         member1.setTeam(team2);
         System.out.println("updated member01 = " + member1);
+    }
+
+    // 연관관계 제거(연관관계) ---> 연관된 엔티티 제거
+    private static void delete(EntityManager em) {
+        // 팀03 저장
+        Team team3 = new Team("team03", "팀03");
+        em.persist(team3);
+        System.out.println("team1 = " + team3);
+
+        // 회원03 저장
+        Member member3 = new Member("member03", "회원03");
+        member3.setTeam(team3); // 연관관계 설정 member03 ---> team03
+        em.persist(member3);
+        System.out.println("member3 = " + member3);
+
+        // 회원04 저장
+        Member member4 = new Member("member04", "회원04");
+        member4.setTeam(team3); // 연관관계 설정 member04 ---> team03
+        em.persist(member4);
+        System.out.println("member4 = " + member4);
+
+        // member03의 team03에 대한 연관관계 제거
+        member3 = em.find(Member.class, "member03");
+        member3.setTeam(null);
+        System.out.println("deleted relation member03 = " + member3);
+
+        // member04의 team03에 대한  연관관계 제거
+        member4 = em.find(Member.class, "member04");
+        member4.setTeam(null);
+        System.out.println("deleted relation member04 = " + member4);
+
+        // 연관된 엔티티 제거
+        em.remove(team3);
     }
 }
