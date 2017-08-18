@@ -1,7 +1,14 @@
 package com.doubles.jpastudy;
 
+import javax.persistence.*;
+
+@Entity
 public class Team {
+
+    @Id
+    @Column(name = "TEAM_ID")
     private String id;
+
     private String username;
 
     // 기본 생성자
