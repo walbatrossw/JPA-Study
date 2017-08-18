@@ -9,16 +9,16 @@ public class Team {
     @Column(name = "TEAM_ID")
     private String id;
 
-    private String username;
+    private String name;
 
     // 기본 생성자
     public Team() {
     }
 
     // 생성자
-    public Team(String id, String username) {
+    public Team(String id, String name) {
         this.id = id;
-        this.username = username;
+        this.name = name;
     }
 
     public String getId() {
@@ -29,19 +29,19 @@ public class Team {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
         return "Team{" +
                 "id='" + id + '\'' +
-                ", username='" + username + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }
