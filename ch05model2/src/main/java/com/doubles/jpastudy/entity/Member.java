@@ -1,4 +1,4 @@
-package com.doubles.jpastudy;
+package com.doubles.jpastudy.entity;
 
 import javax.persistence.*;
 import java.util.ArrayList;

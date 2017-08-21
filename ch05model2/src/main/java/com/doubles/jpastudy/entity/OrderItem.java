@@ -1,5 +1,8 @@
 package com.doubles.jpastudy;
 
+import com.doubles.jpastudy.entity.Item;
+import com.doubles.jpastudy.entity.Order;
+
 import javax.persistence.*;
 
 @Entity

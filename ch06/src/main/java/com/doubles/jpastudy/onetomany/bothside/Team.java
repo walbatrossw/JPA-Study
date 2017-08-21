@@ -1,4 +1,4 @@
-package com.doubles.jpastudy;
+package com.doubles.jpastudy.onetomany.bothside;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -8,30 +8,21 @@ import java.util.List;
 public class Team {
 
     @Id
+    @GeneratedValue
     @Column(name = "TEAM_ID")
-    private String id;
+    private Long id;
 
     private String name;
 
-    /* == 양방향 연관관계 매핑 == */
-    @OneToMany(mappedBy = "team")   // 1:N 관계 매핑, mappedBy속성 : 반대쪽 매핑의 필드 이름값
+    @OneToMany
+    @JoinColumn(name = "TEAM_ID")
     private List<Member> members = new ArrayList<Member>();
 
-    // 기본 생성자
-    public Team() {
-    }
-
-    // 생성자
-    public Team(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -50,5 +41,4 @@ public class Team {
     public void setMembers(List<Member> members) {
         this.members = members;
     }
-
 }

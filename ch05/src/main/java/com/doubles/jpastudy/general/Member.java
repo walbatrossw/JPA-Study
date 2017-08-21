@@ -1,27 +1,16 @@
-package com.doubles.jpastudy;
+package com.doubles.jpastudy.general;
 
-import javax.persistence.*;
-
-@Entity
 public class Member {
 
-    @Id
-    @Column(name = "MEMBER_ID")
     private String id;
-
     private String username;
-
-    /* == 객체관계 매핑 추가사항 == */
-    // 연관관계 매핑
-    @ManyToOne  // N:1 매핑관계
-    @JoinColumn(name = "TEAM_ID")   // 외래키 매핑, name속성(매핑할 외래키 이름지정)
-    private Team team; // 팀의 참조를 보관
+    private Team team;  // 팀의 참조를 보관
 
     // 기본생성자
     public Member() {
     }
 
-    // 생성자
+    // 생성자 : 아이디, 회원이름
     public Member(String id, String username) {
         this.id = id;
         this.username = username;
@@ -47,14 +36,16 @@ public class Member {
         return team;
     }
 
-    // 연관관계 편의 메서드
     public void setTeam(Team team) {
-        // 기존의 팀과 관계 제거
-        if (this.team != null) {
-            this.team.getMembers().remove(this);
-        }
         this.team = team;
-        team.getMembers().add(this);
     }
 
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                ", team=" + team +
+                '}';
+    }
 }

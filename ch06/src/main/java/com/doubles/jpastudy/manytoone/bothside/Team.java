@@ -1,4 +1,4 @@
-package com.doubles.jpastudy;
+package com.doubles.jpastudy.manytoone.bothside;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -7,20 +7,20 @@ import java.util.List;
 @Entity
 public class Team {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "TEAM_ID")
+    @Id                         // 기본키
+    @GeneratedValue             // 기본키 자동생성
+    @Column(name = "TEAM_ID")   // 칼럼명 TEAM_ID
     private Long id;
 
     private String name;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team")   // 일대다 관계 매핑
     private List<Member> members = new ArrayList<Member>();
 
+    // 연관관계 편의메서드
     public void addMember(Member member) {
         this.members.add(member);
-        // 무한루프에 빠지지 않도록 체크
-        if (member.getTeam() != this) {
+        if (member.getTeam() != this) { // 무한루프에 빠지 않도록 체크
             member.setTeam(this);
         }
     }
@@ -47,14 +47,5 @@ public class Team {
 
     public void setMembers(List<Member> members) {
         this.members = members;
-    }
-
-    @Override
-    public String toString() {
-        return "Team{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", members=" + members +
-                '}';
     }
 }

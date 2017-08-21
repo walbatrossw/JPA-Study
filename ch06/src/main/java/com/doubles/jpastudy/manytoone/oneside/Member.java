@@ -1,4 +1,4 @@
-package com.doubles.jpastudy;
+package com.doubles.jpastudy.manytoone.oneside;
 
 import javax.persistence.*;
 
@@ -38,18 +38,5 @@ public class Member {
 
     public void setTeam(Team team) {
         this.team = team;
-        // 무한루프에 빠지지 않도록 체크
-        if (!team.getMembers().contains(this)) {
-            team.getMembers().add(this);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "Member{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", team=" + team +
-                '}';
     }
 }
