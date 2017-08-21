@@ -2,7 +2,7 @@ package com.doubles.jpastudy.inheritancemapping.tableperclass;
 
 import javax.persistence.*;
 
-@Entity
+//@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Item {
 
