@@ -72,17 +72,34 @@
         1. false 리턴 : 초기화 되지 않은 경우
         2. true 리턴 : 이미 초기화 되거나 프록시 인스턴스가 아닌 경우
 
-## 2) 지연로딩과 즉시로딩
+## 2) 지연 로딩과 즉시 로딩
 
 - 즉시 로딩 : 엔티티를 조회할 때 연관된 엔티티도 즉시 함께 조회
     * `@ManyToOne(fetch = FetchType.EAGER)`
-    * 즉시 로딩을 최적화하기 위해 가능하면 조인쿼리를 사용
-    
+    * 즉시 로딩을 최적화하기 위해 가능하면 조인쿼리를 사용 
 - 지연 로딩 : 엔티티를 조회할 때 연관된 엔티티는 조회하지 않음, 연관된 엔티티를 실제 사용할 때 조회(프록시로 조회)    
     * `@ManyToOne(fetch = FetchType.LAZY)`
 
-## 3) 지연로딩 활용
+## 3) 지연 로딩 활용
 
+- JPA 기본 페치 전략
+    * 연관된 엔티티가 하나면 즉시 로딩!, 컬렉션이면 지연 로딩!
+        1. `@ManyToOne`, `@OneToOne` - 즉시 로딩(`FetchType.EAGER`)
+        2. `@OneToMany`, `@ManyToMany` - 지연 로딩(`FetchType.LAZY`)
+    * 추천하는 방법은 모든 연관관계에 지연로딩을 사용하는 것
+    * 그 이후 개발이 완료단계에 이르렀을 때 실제 사용하는 상황에 따라 즉시로딩을 사용하도록 최적화
+
+- 컬렉션에 `FetchType.EAGER` 사용 시 주의!
+    * 컬렉션을 하나 이상 즉시 로딩하는 것은 권장하지 않음
+    * 컬렉션 즉시 로딩은 항상 외부조인(Outer join)을 사용
+    * `FetchType.EAGER`  설정과 조인 전략
+        1. `@ManyToOne`, `@OneToOne` : 연관 엔티티가 하나일 경우
+            - `(optional = false)` : 내부조인 
+            - `(optional = true)`  : 외부조인 
+        2. `@OneToMany`, `@OneToMany` : 연관 엔티티가 컬렉션일 경우
+            - `(optional = false)` : 외부조인
+            - `(optional = true)`  : 외부조인
+             
 ## 4) 영속성 전이 : CASCADE
 
 ## 5) 고아객체

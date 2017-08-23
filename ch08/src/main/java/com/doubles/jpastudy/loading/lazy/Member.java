@@ -2,7 +2,7 @@ package com.doubles.jpastudy.loading.lazy;
 
 import javax.persistence.*;
 
-@Entity
+//@Entity
 public class Member {
 
     @Id
