@@ -1,10 +1,10 @@
-package com.doubles.jpastudy.loading.eager;
+package com.doubles.jpastudy.loading.lazy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-//@Entity
+@Entity
 public class Team {
 
     @Id

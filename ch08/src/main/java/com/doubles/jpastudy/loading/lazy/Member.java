@@ -1,8 +1,8 @@
-package com.doubles.jpastudy.loading.eager;
+package com.doubles.jpastudy.loading.lazy;
 
 import javax.persistence.*;
 
-//@Entity
+@Entity
 public class Member {
 
     @Id
@@ -11,7 +11,7 @@ public class Member {
 
     private String username;
 
-    @ManyToOne(fetch = FetchType.EAGER) // 즉시로딩
+    @ManyToOne(fetch = FetchType.LAZY)  // 지연로딩
     @JoinColumn(name = "TEAM_ID")
     private Team team;
 
