@@ -23,7 +23,7 @@
             <!--JPA표준에 맞춘 새로운 키 생성 전략 사용-->
             <property name="hibernate.id.new_generator_mappings" value="true" />
             <!--애플리케이션 실행시점에 데이터베이스 테이블을 자동생성-->
-            <!--<property name="hibernate.hbm2ddl.auto" value="create" />-->
+            <property name="hibernate.hbm2ddl.auto" value="create" />
             <!-- 기본 매핑 이름 -->
             <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy" />
         </properties>
