@@ -264,5 +264,29 @@
     * `CascadeType.PERSIST`, `CascadeType.REMOVE`는 `persist()`, `remove()`를 실행할 때 전이가 발생하지 않고 플러시를 호출할 때 전이가 발생
 
 ## 5) 고아객체
+JPA는 부모 엔티티와 연관관계 끊어진 자식 엔티티를 자동으로 삭제하는 기능을 제공하는데 이것을 고아 객체(ORPHAN) 제거라고 함
 
-## 6) 영속성 전이 + 고아 객체, 생명주기
+- 고아 객체 제거 기능 설정
+    ```java
+    @Entity
+    public class Parent {
+    
+        @Id
+        @GeneratedValue
+        private Long id;
+    
+        @OneToMany(mappedBy = "parent", orphanRemoval = true) // 고아객체 제거
+        private List<Child> children = new ArrayList<Child>();
+    
+        // ...
+    }
+    ```
+- 참조가 제거된 엔티티는 다른 곳에서 참조하지 않는 고아 객체로 보고 삭제하는 기능
+
+## 6) 정리
+
+- JPA 구현체들은 객체 그래프를 탐색할 수 있도록 지원하는데 프록시 기술을 사용
+- 객체를 조회할 때 연관된 객체를 즉시 로딩하는 방법을 즉시로딩, 연관된 객체를 지연해서 로딩하는 방법을 지연로딩
+- 객체를 저장하거나 삭제할 때 연관된 객체도 함께 저장하거나 삭제할 수 있는데 이것을 영속성 전이라고 함
+- 부모 엔티티와 연관관계가 끊어진 자식 엔티티를 자동으로 삭제하려면 고아 객체 제거 기능을 사용
+

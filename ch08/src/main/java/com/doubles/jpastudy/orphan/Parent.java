@@ -1,17 +1,17 @@
-package com.doubles.jpastudy.transitive.cascade;
+package com.doubles.jpastudy.orphan;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Entity
+@Entity
 public class Parent {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE) // 영속성 전이 활성화
+    @OneToMany(mappedBy = "parent", orphanRemoval = true) // 고아객체 제거
     private List<Child> children = new ArrayList<Child>();
 
     public Long getId() {
