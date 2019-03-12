@@ -11,7 +11,7 @@
 
 엔티티에는 4가지 상태가 존재하며 생명주기는 아래의 그림과 같다.
 
-![entity-lifetime]()
+![entity-lifetime](https://github.com/walbatrossw/jpa-study/blob/master/docs/img/entity-lifetime.png?raw=true)
 
 - 비영속(new/transient) : 영속성 컨텍스트와 관계가 없는 상태
 - 영속(managed) : 영속성 컨텍스트에 저장된 상태
@@ -47,9 +47,9 @@ List<Member> members = entityManager.createQuery("SELECT m FROM Member m", Membe
 
 영속성 컨텍스트가 관리하던 영속상태의 엔티티를 영속성 컨텍스트가 관리하지 않으면
 준영속 상태가 된다. 특정 엔티티를 준영속 상태로 만드려면 아래의 메서드들을 호출하면 된다.
-- `detach()`
-- `close()`
-- `clear()`
+- `entityManager.detach()` : 분리
+- `entityManager.close()` : 영속성 컨텍스트 닫음
+- `entityManager.clear()` : 영속성 컨텍스트 초기화
 
 ### 2.4 삭제
 
