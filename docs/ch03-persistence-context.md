@@ -2,7 +2,7 @@
 학습한 내용 복습하기 위해 작성된 글로 내용상 오류가 있을 수 있습니다. 오류가 있다면 지적 부탁 드리겠습니다.
 
 
-# 영속성 관리
+# JPA - 영속성 관리
 
 ## 1. 영속성 컨텍스트 기본 개념
 
@@ -310,5 +310,158 @@ entityManager.close(); // 영속성 컨텍스트 닫기
 엔티티를 받아서 그 정보로 새로운 영속 상태의 엔티티를 반환한다.
 
 ```java
+public class ExamMergeMain {
 
+    // 엔티티 매니저 팩토리 생성
+    private static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("jpa03");
+
+    public static void main(String[] args) {
+
+        // 회원 엔티티 생성 --> 준영속 상태
+        Member member = createMember("id001", "doubles", 20);
+
+        // 준영속 상태 --> 회원 정보 변경 : 변경이 이루어지지 않음
+        member.setUsername("더블에스");
+
+        // 회원 엔티티 병합
+        mergeMember(member);
+    }
+
+    // 회원 엔티티 생성 --> 영속성 컨텍스트 종료
+    private static Member createMember(String id, String username, int age) {
+
+        // 엔티티 매니저 생성
+        EntityManager entityManager1 = entityManagerFactory.createEntityManager();
+
+        // 트랜잭션 획득
+        EntityTransaction transaction1 = entityManager1.getTransaction();
+
+        transaction1.begin();   // 트랜잭션 시작
+
+        // 회원 객체 생성
+        Member member = new Member();
+        member.setId(id);
+        member.setUsername(username);
+        member.setAge(age);
+
+        // 회원 엔티티 등록
+        entityManager1.persist(member);
+
+        transaction1.commit();  // 트랜잭션 커밋
+
+        // 영속성 컨텍스트 종료 ---> 회원 엔티티 준영속 상태로 변경됨
+        entityManager1.close();
+
+        return member;
+    }
+
+    // 병합
+    private static void mergeMember(Member member) {
+
+        // 엔티티 매니저 생성
+        EntityManager entityManager2 = entityManagerFactory.createEntityManager();
+
+        // 트랜잭션 획득
+        EntityTransaction transaction2 = entityManager2.getTransaction();
+
+        transaction2.begin(); // 트랜잭션 시작
+
+        // 회원 엔티티 병합 ---> 회원 엔티티 변경 감지 DB 반영
+        Member mergeMember = entityManager2.merge(member);
+
+        transaction2.commit(); // 트랜잭션 커밋
+
+        System.out.println("member = " + member.getUsername()); // 준영속 상태
+
+        System.out.println("mergeMember = " + mergeMember.getUsername()); // 영속 상태
+
+        System.out.println("entityManager2 contains member = " + entityManager2.contains(member));
+
+        System.out.println("entityManager2 contains mergeMember = " + entityManager2.contains(mergeMember));
+
+        entityManager2.close();
+    }
+
+}
 ```
+
+위의 코드는 준영속 상태의 엔티티가 어떻게 영속상태로 변경되는지 알아보기 위해 작성된 것으로 큰 흐름은 아래와 같다.
+
+1. `createMember()`메서드에서 회원 엔티티를 생성하고, 등록한 뒤에 영속성 컨텍스트를 종료시켜 준영속 상태로 만든다.
+2. 준영속 상태의 회원 엔티티를 변경하면 변경사항이 적용되지 않는다.
+3. `mergeMember()`매서드에서 회원 엔티티를 병합하고, 변경사항을 감지하여 DB에 동기화한다.
+4. 반환된 `mergeMember`와 `member`가 영속성 컨텍스트에 존재하는지 `contains()`메서드를 통해 확인한다.
+
+위 코드를 실행하고 나면 콘솔에서 아래와 같이 결과를 확인할 수 있다.
+
+```console
+Hibernate:
+    /* insert com.doubles.jpa03.Member
+        */ insert
+        into
+            MEMBER
+            (age, NAME, ID)
+        values
+            (?, ?, ?)
+Hibernate:
+    /* load com.doubles.jpa03.Member */ select
+        member0_.ID as ID1_0_0_,
+        member0_.age as age2_0_0_,
+        member0_.NAME as NAME3_0_0_
+    from
+        MEMBER member0_
+    where
+        member0_.ID=?
+Hibernate:
+    /* update
+        com.doubles.jpa03.Member */ update
+            MEMBER
+        set
+            age=?,
+            NAME=?
+        where
+            ID=?
+member = 더블에스
+mergeMember = 더블에스
+entityManager2 contains member = false
+entityManager2 contains mergeMember = true
+```
+
+콘솔 화면을 통해 확인할 수 있는 것은 `merge()`메서드를 통해 반환 받은 `mergeMember`와 `member`는
+다른 인스턴스라는 것을 알 수 있고, `mergeMember`는 영속상태이고, `member`는 여전히 준영속 상태라는 것을
+알 수 있다. 이렇게 준영속 엔티티를 참조하던 변수는 영속 엔티티를 참조하도록 변경하는 것이 안전하고 바람직하다.
+
+```java
+//Member mergeMember = entityManager2.merge(member); 코드 변경
+member = entityManager2.merge(member); // 참조를 변경
+```
+
+`merge()`메서드는 비영속 엔티티도 영속상태로 만들 수도 있다.
+
+```java
+Member member = new Member(); // 비영속 상태
+Member newMember = entityManager.merge(member); // 엔티티 병합
+```
+
+병합은 파라미터로 넘어온 엔티티의 식별자로 영속성 컨텍스트를 조회하고 없을 경우 DB를 조회한다. 만약 DB에도
+존재하지 않는다면 새로운 엔티티를 생성해서 병합을 하게 된다.
+
+병합은 준영속, 비영속을 가리지 않고 식별자로 조회가 가능하면 불러와 병합하고 없다면 새로 생성해서 병합한다.
+
+
+## 6. Summery / Conclusion
+
+- 영속성 컨텍스트는 엔티티를 영구히 저장하는 환경
+- 엔티티 생명주기
+  - 비영속 : 관계 없음
+  - 영속  : 저장된 상태, `persist()`
+  - 준영속 : 분리된 상태, `detach()`
+  - 삭제  : 삭제된 상태, `remove()`
+- 영속성 컨텍스트의 장점과 특징
+  - 1차캐시 : 영속성 컨텍스트에 존재하는 일종의 가상DB, Map처럼 key와 value를 가짐
+  - 동일성 보장 : 같은 엔티티를 조회할 경우, 컨텍스트에 존재하는 엔티티를 바로 반환, 속도에 이점
+  - 쓰기지연 : SQL 내부저장소에 모아두었다가 트랜잭션 커밋할 때 DB에 전달
+  - 변경감지 : 엔티티의 변경사항을 스냅샷을 통해 감지하고, DB에 동기화, UPDATE SQL은 모든필드를 수정하는 SQL을 사용
+  - 지연로딩 :
+- 플러시 : 트랜잭션 커밋할 때 영속성 컨텍스트가 플러시되고 DB에 변경사항을 동기화
+- 준영속 상태에서는 영속성 컨텍스트가 제공하는 기능을 사용하지 못함

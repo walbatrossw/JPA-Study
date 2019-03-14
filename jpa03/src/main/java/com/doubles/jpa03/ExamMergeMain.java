@@ -18,7 +18,7 @@ public class ExamMergeMain {
         // 준영속 상태 --> 회원 정보 변경 : 변경이 이루어지지 않음
         member.setUsername("더블에스");
 
-        // 회원 엔티티
+        // 회원 엔티티 병합
         mergeMember(member);
     }
 
@@ -44,7 +44,8 @@ public class ExamMergeMain {
 
         transaction1.commit();  // 트랜잭션 커밋
 
-        entityManager1.close(); // 영속성 컨텍스트 종료
+        // 영속성 컨텍스트 종료 ---> 회원 엔티티 준영속 상태로 변경됨
+        entityManager1.close();
 
         return member;
     }
@@ -52,22 +53,22 @@ public class ExamMergeMain {
     // 병합
     private static void mergeMember(Member member) {
 
-        // 엔티티 매니저 생썽
+        // 엔티티 매니저 생성
         EntityManager entityManager2 = entityManagerFactory.createEntityManager();
 
         // 트랜잭션 획득
         EntityTransaction transaction2 = entityManager2.getTransaction();
 
-
         transaction2.begin(); // 트랜잭션 시작
 
+        // 회원 엔티티 병합 ---> 회원 엔티티 변경 감지 DB 반영
         Member mergeMember = entityManager2.merge(member);
 
         transaction2.commit(); // 트랜잭션 커밋
 
-        System.out.println("member = " + member.getUsername());
+        System.out.println("member = " + member.getUsername()); // 준영속 상태
 
-        System.out.println("mergeMember = " + mergeMember.getUsername());
+        System.out.println("mergeMember = " + mergeMember.getUsername()); // 영속 상태
 
         System.out.println("entityManager2 contains member = " + entityManager2.contains(member));
 
