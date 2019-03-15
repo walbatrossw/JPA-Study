@@ -933,15 +933,78 @@ private byte[] lobByte;
 
 #### 6.6.2 예
 
-필드 접근 코드는 아래와 같다.
-
 ```java
+// 필드 접근
 @Entity
-@Access(AccessType.FIELD)
+@Access(AccessType.FIELD) // 생략 가능
 public class Member {
+
   @Id
   private String id;
 
   // ....
 }
 ```
+
+```java
+// 프로퍼티 접근
+@Entity
+@Access(AccessType.PROPERTY) // 생략 가능
+public class Member {
+
+  private String id;
+
+  // ....
+
+  @Id
+  public String getId() {
+    return id;
+  }
+
+  // ....
+}
+```
+
+```java
+// 필드와 프로퍼티 접근 혼용
+@Entity
+public class Member {
+
+  @Id
+  private String id;  // 필드 접근 방식
+
+  @Transient
+  private String firstName;
+
+  @Transient
+  private String lastName;
+
+  // ....
+
+  @Access(AccessType.PROPERTY)  // 프로퍼티 접근 방식
+  public String getFullName() {
+    return firstName + lastName;
+  }
+
+}
+```
+
+## 7. Summery / Conclusion
+
+- 객체 매핑 : `@Entity`
+- 테이블 매핑 : `@Table`
+- 스키마 자동생성
+- 기본키 매핑 전략
+  - 직접할당
+  - IDENTITY
+  - SEQUENCE
+  - TABLE
+  - AUTO
+- 필드 / 칼럼 매핑
+  - `@Column`
+  - `@Enumerated`
+  - `@Temporal`
+  - `@Lob`
+  - `@Transient`
+- 필드, 프로퍼티 접근
+  - `@Access`
