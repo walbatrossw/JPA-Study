@@ -1,0 +1,37 @@
+@startuml
+
+title 객체와 테이블의 연관 관계
+
+MEMBER }o--o| TEAM
+
+class Member {
+    id
+    Team team
+    username
+}
+
+class Team {
+    id
+    name
+}
+
+Member  --> "0..1" Team
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(MEMBER) {
+    primary_key(MEMBER_ID)
+    foreign_key(TEAM_ID)
+    USERNAME
+}
+
+table(TEAM) {
+    primary_key(TEAM_ID)
+    NAME
+}
+
+@enduml
