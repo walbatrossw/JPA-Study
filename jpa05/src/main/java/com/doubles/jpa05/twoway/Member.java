@@ -2,6 +2,7 @@ package com.doubles.jpa05.twoway;
 
 import javax.persistence.*;
 
+// 다대일 양방향 매핑
 @Entity
 public class Member {
 
@@ -11,9 +12,13 @@ public class Member {
 
     private String username;
 
-    @ManyToOne  // 다대일 관계 매핑
-    @JoinColumn(name = "TEAM_ID")   // 외래키 매핑
+    // 다대일 매핑
+    @ManyToOne
+    @JoinColumn(name = "TEAM_ID")   // 외래키 설정
     private Team team;
+
+    public Member() {
+    }
 
     public Member(String id, String username) {
         this.id = id;
@@ -40,7 +45,16 @@ public class Member {
         return team;
     }
 
+    // 연관관계 편의 메서드
     public void setTeam(Team team) {
+
+        // 기존의 관계 제거
+        if (this.team != null) {
+            this.team.getMembers().remove(this);
+        }
+
+        // 양방향 연관관계 설정
         this.team = team;
+        team.getMembers().add(this);
     }
 }

@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+// 다대일 단방향 매핑
 //@Entity
 public class Team {
 
@@ -12,6 +13,9 @@ public class Team {
     private String id;
 
     private String name;
+
+    public Team() {
+    }
 
     public Team(String id, String name) {
         this.id = id;

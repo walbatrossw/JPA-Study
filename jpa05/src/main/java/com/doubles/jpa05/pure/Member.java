@@ -1,11 +1,20 @@
 package com.doubles.jpa05.pure;
 
+// 순수한 멤버 객체
 public class Member {
 
     private String id;
     private String username;
 
     private Team team;
+
+    public Member() {
+    }
+
+    public Member(String id, String username) {
+        this.id = id;
+        this.username = username;
+    }
 
     public String getId() {
         return id;
@@ -29,10 +38,5 @@ public class Member {
 
     public void setTeam(Team team) {
         this.team = team;
-    }
-
-    @Override
-    public String toString() {
-        return "member - id : " + id + ", name : " + username + ", team : " + team;
     }
 }

@@ -1,12 +1,10 @@
 package com.doubles.jpa05.twoway;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// 다대일 양방향 매핑
 @Entity
 public class Team {
 
@@ -16,8 +14,11 @@ public class Team {
 
     private String name;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team") // 반대쪽 매핑의 필드명 입력
     private List<Member> members = new ArrayList<Member>();
+
+    public Team() {
+    }
 
     public Team(String id, String name) {
         this.id = id;
@@ -46,14 +47,5 @@ public class Team {
 
     public void setMembers(List<Member> members) {
         this.members = members;
-    }
-
-    @Override
-    public String toString() {
-        return "Team{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", members=" + members +
-                '}';
     }
 }

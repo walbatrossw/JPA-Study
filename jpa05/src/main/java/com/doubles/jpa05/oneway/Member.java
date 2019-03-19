@@ -2,6 +2,7 @@ package com.doubles.jpa05.oneway;
 
 import javax.persistence.*;
 
+// 다대일 단방향 매핑
 //@Entity
 public class Member {
 
@@ -11,9 +12,13 @@ public class Member {
 
     private String username;
 
-    @ManyToOne  // 다대일 관계 매핑
-    @JoinColumn(name = "TEAM_ID")   // 외래키 매핑
+    // 연관 관계 매핑 : 다대일
+    @ManyToOne
+    @JoinColumn(name = "TEAM_ID") // 외래키 매핑할 때 사용
     private Team team;
+
+    public Member() {
+    }
 
     public Member(String id, String username) {
         this.id = id;
