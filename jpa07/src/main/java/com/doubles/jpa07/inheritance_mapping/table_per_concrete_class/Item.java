@@ -2,7 +2,7 @@ package com.doubles.jpa07.inheritance_mapping.table_per_concrete_class;
 
 import javax.persistence.*;
 
-@Entity
+//@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS) // 상속매핑 - 구현 클래스마다 테이블 전략
 public abstract class Item {
 

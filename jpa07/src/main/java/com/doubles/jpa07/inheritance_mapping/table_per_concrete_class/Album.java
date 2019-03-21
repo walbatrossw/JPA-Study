@@ -2,7 +2,7 @@ package com.doubles.jpa07.inheritance_mapping.table_per_concrete_class;
 
 import javax.persistence.Entity;
 
-@Entity
+//@Entity
 public class Album extends Item {
 
     private String artist;
