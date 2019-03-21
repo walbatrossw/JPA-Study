@@ -1,22 +1,20 @@
-package com.doubles.jpa06.n_to_n.twoway;
+package com.doubles.jpa06.n_to_n.new_primary_key;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import java.util.ArrayList;
-import java.util.List;
 
-// 다대다 양방향
-//@Entity
+// 다대다 : 새로운 기본키 사용
+@Entity
 public class Product {
 
+    // 상품 식별자
     @Id
+    @Column(name = "PRODUCT_ID")
     private String id;
 
+    // 상품명
     private String name;
-
-    @ManyToMany(mappedBy = "products") // 역방향 추가
-    private List<Member> members = new ArrayList<Member>();
 
     public Product() {
     }
@@ -40,13 +38,5 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Member> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<Member> members) {
-        this.members = members;
     }
 }

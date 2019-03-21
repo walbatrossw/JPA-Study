@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // 다대다 양방향
-@Entity
+//@Entity
 public class Member {
 
     @Id

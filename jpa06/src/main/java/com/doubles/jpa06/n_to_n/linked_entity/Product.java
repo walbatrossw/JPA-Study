@@ -1,22 +1,18 @@
-package com.doubles.jpa06.n_to_n.twoway;
+package com.doubles.jpa06.n_to_n.linked_entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import java.util.ArrayList;
-import java.util.List;
 
-// 다대다 양방향
+// 다대다 매핑 한계, 극복 / 연결 엔티티 사용
 //@Entity
 public class Product {
 
     @Id
+    @Column(name = "PRODUCT_ID")
     private String id;
 
     private String name;
-
-    @ManyToMany(mappedBy = "products") // 역방향 추가
-    private List<Member> members = new ArrayList<Member>();
 
     public Product() {
     }
@@ -40,13 +36,5 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Member> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<Member> members) {
-        this.members = members;
     }
 }
