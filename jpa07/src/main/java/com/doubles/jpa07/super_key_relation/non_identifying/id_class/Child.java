@@ -2,7 +2,7 @@ package com.doubles.jpa07.super_key_relation.non_identifying.id_class;
 
 import javax.persistence.*;
 
-@Entity
+//@Entity
 public class Child {
 
     @Id

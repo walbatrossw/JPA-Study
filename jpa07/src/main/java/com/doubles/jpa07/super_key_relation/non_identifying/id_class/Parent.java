@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 
 // 복합키 비식별 관계 매핑
-@Entity
+//@Entity
 @IdClass(ParentId.class) // 관계형 데이터베이스에 가까운 방법, 식별자 클래스 지정
 public class Parent {
 
