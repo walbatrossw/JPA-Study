@@ -4,7 +4,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
 // 복합키 비식별 관계 매핑
-@Entity
+//@Entity
 public class Parent {
 
     // 좀더 객체지향적인 방법
