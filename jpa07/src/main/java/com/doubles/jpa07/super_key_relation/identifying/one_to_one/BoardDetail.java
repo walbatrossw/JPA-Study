@@ -2,7 +2,8 @@ package com.doubles.jpa07.super_key_relation.identifying.one_to_one;
 
 import javax.persistence.*;
 
-@Entity
+// 식별관계 : 일대일 매핑
+//@Entity
 public class BoardDetail {
 
     @Id

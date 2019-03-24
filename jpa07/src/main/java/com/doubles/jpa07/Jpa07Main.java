@@ -5,7 +5,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-public class MappingTest {
+public class Jpa07Main {
     public static void main(String[] args) {
 
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("jpa07");
