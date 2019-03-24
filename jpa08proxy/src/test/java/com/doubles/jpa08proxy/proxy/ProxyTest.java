@@ -63,7 +63,7 @@ public class ProxyTest extends JPAHibernateTest {
     // 프록시 초기화 테스트
     @Test
     public void testProxyInit() {
-        Member member = manager.getReference(Member.class, "m01");
+        Member member = manager.getReference(Member.class, "m01");  // 식별자 보관
         assertThat(member.getUsername(), is("kim"));
     }
 

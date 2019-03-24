@@ -1,11 +1,9 @@
-package com.doubles.jpa08proxy.proxy;
+package com.doubles.jpa08proxy.eager_loading;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
-//@Entity
+// 즉시 로딩
+@Entity
 public class Member {
 
     @Id
@@ -14,7 +12,8 @@ public class Member {
 
     private String username;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "TEAM_ID")
     private Team team;
 
     public Member() {
