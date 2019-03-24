@@ -1,10 +1,10 @@
-package com.doubles.jpa08proxy.eager_loading;
+package com.doubles.jpa08proxy.lazy_loading;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-//@Entity
+@Entity
 public class Team {
 
     @Id

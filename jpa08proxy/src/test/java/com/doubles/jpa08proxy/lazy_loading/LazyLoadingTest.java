@@ -1,11 +1,11 @@
-package com.doubles.jpa08proxy.eager_loading;
+package com.doubles.jpa08proxy.lazy_loading;
 
 import com.doubles.jpa08proxy.JPAHibernateTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class EagerLoadingTest extends JPAHibernateTest {
+public class LazyLoadingTest extends JPAHibernateTest {
 
     // 팀, 회원 저장 테스트
     @Test
@@ -39,9 +39,9 @@ public class EagerLoadingTest extends JPAHibernateTest {
 
     }
 
-    // 즉시 로딩 테스트
+    // 지연 로딩 테스트
     @Test
-    public void TestEagerLoading() {
+    public void TestLazyLoading() {
         Member member = manager.find(Member.class, "m01");
         Team team = member.getTeam();
 
