@@ -1,24 +1,26 @@
-package com.doubles.jpa07.super_key_relation.identifying.id_class;
+package com.doubles.jpa07.super_key_relation.identifying.modify_non_indentifying;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-// 복합키 : 식별관계 매핑 - @IdClass
+// 비식별 관계로 구현
 //@Entity
 public class Parent {
 
     @Id
+    @GeneratedValue
     @Column(name = "PARENT_ID")
-    private String id;
+    private Long id;
 
     private String name;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -2,7 +2,8 @@ package com.doubles.jpa07.super_key_relation.identifying.id_class;
 
 import javax.persistence.*;
 
-@Entity
+// 복합키 : 식별관계 매핑 - @IdClass
+//@Entity
 @IdClass(ChildId.class)
 public class Child {
 

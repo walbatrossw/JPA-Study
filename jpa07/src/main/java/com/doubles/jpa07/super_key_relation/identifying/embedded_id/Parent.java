@@ -1,10 +1,10 @@
-package com.doubles.jpa07.super_key_relation.identifying.id_class;
+package com.doubles.jpa07.super_key_relation.identifying.embedded_id;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-// 복합키 : 식별관계 매핑 - @IdClass
+// 복합키 : @EmbeddedId
 //@Entity
 public class Parent {
 

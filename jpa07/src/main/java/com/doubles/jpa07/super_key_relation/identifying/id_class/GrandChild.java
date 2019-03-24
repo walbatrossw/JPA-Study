@@ -3,7 +3,7 @@ package com.doubles.jpa07.super_key_relation.identifying.id_class;
 import javax.persistence.*;
 
 // 부모
-@Entity
+//@Entity
 @IdClass(GrandChildId.class)
 public class GrandChild {
 
