@@ -42,7 +42,9 @@ public class EagerLoadingTest extends JPAHibernateTest {
     // 즉시 로딩 테스트
     @Test
     public void TestEagerLoading() {
+        // 회원 조회
         Member member = manager.find(Member.class, "m01");
+        // 팀 조회 : 그래프 탐색
         Team team = member.getTeam();
 
         assertEquals(team.getId(), "t01");

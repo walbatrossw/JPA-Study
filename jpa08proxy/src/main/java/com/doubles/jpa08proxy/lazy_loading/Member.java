@@ -3,7 +3,7 @@ package com.doubles.jpa08proxy.lazy_loading;
 import javax.persistence.*;
 
 // 즉시 로딩
-@Entity
+//@Entity
 public class Member {
 
     @Id
