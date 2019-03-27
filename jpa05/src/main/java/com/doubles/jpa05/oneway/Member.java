@@ -3,7 +3,7 @@ package com.doubles.jpa05.oneway;
 import javax.persistence.*;
 
 // 다대일 단방향 매핑
-//@Entity
+@Entity
 public class Member {
 
     @Id
@@ -23,6 +23,26 @@ public class Member {
     public Member(String id, String username) {
         this.id = id;
         this.username = username;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Member member = (Member) o;
+
+        if (id != null ? !id.equals(member.id) : member.id != null) return false;
+        if (username != null ? !username.equals(member.username) : member.username != null) return false;
+        return team != null ? team.equals(member.team) : member.team == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (username != null ? username.hashCode() : 0);
+        result = 31 * result + (team != null ? team.hashCode() : 0);
+        return result;
     }
 
     public String getId() {
