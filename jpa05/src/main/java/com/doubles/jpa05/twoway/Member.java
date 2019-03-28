@@ -3,7 +3,7 @@ package com.doubles.jpa05.twoway;
 import javax.persistence.*;
 
 // 다대일 양방향 매핑
-//@Entity
+@Entity
 public class Member {
 
     @Id
@@ -48,13 +48,14 @@ public class Member {
     // 연관관계 편의 메서드
     public void setTeam(Team team) {
 
-        // 기존의 관계 제거
+        // 기존의 팀이 존재할 경우, 팀관계를 제거
         if (this.team != null) {
             this.team.getMembers().remove(this);
         }
 
-        // 양방향 연관관계 설정
+        // 새로운 연관관계 설정
         this.team = team;
         team.getMembers().add(this);
+
     }
 }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // 다대일 양방향 매핑
-//@Entity
+@Entity
 public class Team {
 
     @Id

@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 // 다대일 단방향 매핑
-@Entity
+//@Entity
 public class Team {
 
     @Id

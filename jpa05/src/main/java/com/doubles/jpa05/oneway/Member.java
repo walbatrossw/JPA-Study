@@ -3,7 +3,7 @@ package com.doubles.jpa05.oneway;
 import javax.persistence.*;
 
 // 다대일 단방향 매핑
-@Entity
+//@Entity
 public class Member {
 
     @Id

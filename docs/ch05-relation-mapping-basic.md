@@ -151,7 +151,7 @@ FROM MEMBER M
 WHERE M.MEMBER_ID = 'm01';
 ```
 
-### 1.3 객체 관계 매핑
+### 2.3 객체 관계 매핑
 
 JPA를 사용하여 회원과 팀을 매핑해보자.
 
@@ -639,14 +639,552 @@ Hibernate:
 
 ## 4. 양방향 연관관계
 
+회원에서 팀으로만 접근하는 다대일 단방향에서 이제는 팀에서 회원으로 접근하는 관계를 추가하여 양방향 연관관계를 매핑해보자.
+
+![n-to-one-two-way-relation](http://www.plantuml.com/plantuml/png/VL6xJiCm5Dtz5PUmD8WKM54KAOXKGY8TsZ9N2RbjBVAeR4TA19KO-06MCZ4oi4NGhohX7x3h40ggi2nPznpVSywr1HKnGhry_AXUFvSliAwUwxSLr4_LUdMlzli38Rxddta3M6IMbTt1o7DzGgxZW7FmCGcHmIq1kIoW4Pp2K32QJXiavyZI8C6_kC0WaTX87eGilkLK-OzOVuTGiad09Nn9kL1IJIRZm03RiXmmZhlT4wEnsejmGbC44OGnTWeJj741jWsTqU5-h-VAPOBZj5VdZ2O1AyStMAe6EtGA-oZyuISPGpfDMpvNVEwG6OrGnXEpBEAwu08PPgAS8oT49z1FQpP3RrjfPdnnRcweRHVr0ornDVG6VTVtrEXQKz6x57-rDIrV)
+
+객체의 양방향 연관관계에서 변경 사항은 `Team.members`를 `List`컬렉션으로 추가한 것이다. 테이블의의 경우 외래키 하나로
+양방향을 조회할 수 있기 때문에 변경사항은 없다.
+
 ### 4.1 양방향 연관관계 매핑
+
+```java
+// 회원 클래스
+// 다대일 양방향 매핑
+@Entity
+public class Member {
+
+    @Id
+    @Column(name = "MEMBER_ID")
+    private String id;
+
+    private String username;
+
+    // 다대일 매핑
+    @ManyToOne
+    @JoinColumn(name = "TEAM_ID")   // 외래키 설정
+    private Team team;
+
+    // constructor, getter, setter
+}
+```
+
+회원 엔티티에서는 변경사항이 없다.
+
+```java
+// 팀 클래스
+// 다대일 양방향 매핑
+@Entity
+public class Team {
+
+    @Id
+    @Column(name = "TEAM_ID")
+    private String id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "team") // 반대쪽 매핑의 필드명 지정
+    private List<Member> members = new ArrayList<Member>();
+
+    // constructor, getter, setter
+}
+```
+
+팀 엔티티에서는 팀과 회원을 일대다 관계로 매핑하기 위해 팀 엔티티에 `List<Member> members`필드를 추가했다. `mappedBy`
+속성은 양방향 매핑일 때 사용하는데 반대쪽 매핑의 필드 이름을 값으로 지정하면된다.
 
 ### 4.2 일대다 컬렉션 조회
 
+```java
+// 양방향 그래프 탐색 테스트
+@Test
+public void testBiDirection() {
+    // GIVEN
+    Team team = manager.find(Team.class, "t01"); // 팀 조회
+    // WHEN
+    List<Member> members = team.getMembers(); // 회원 객체 그래프 탐색
+    // THEN
+    assertThat(members.get(0), Matchers.<Member>hasProperty("username", is("lee")));
+    assertThat(members.get(1), Matchers.<Member>hasProperty("username", is("kim")));
+}
+```
+
+```console
+Hibernate:
+    select
+        team0_.team_id as team_id1_1_0_,
+        team0_.name as name2_1_0_
+    from
+        team team0_
+    where
+        team0_.team_id=?
+Hibernate:
+    select
+        members0_.team_id as team_id3_1_0_,
+        members0_.member_id as member_i1_0_0_,
+        members0_.member_id as member_i1_0_1_,
+        members0_.team_id as team_id3_0_1_,
+        members0_.username as username2_0_1_
+    from
+        member members0_
+    where
+        members0_.team_id=?
+```
+
+조회한 팀에서 회원 컬렉션으로 객체 그래프 탐색을 하면 정상적으로 테스트가 통과하는 것을 확인할 수 있다.
+
 ## 5. 연관관계의 주인
+
+### 5.1 양방향 매핑 규칙 : 연관관계의 주인
+
+양방향 관계 매핑 시 지켜야할 규칙은 두 연관관계 중 하나를 연관관계의 주인으로 정해야 한다. 연관관계의 주인만이 연관관계와
+매핑하고, 외래키를 관리(등록, 수정, 삭제)할 수 있다. 반면에 주인이 아닌 쪽은 읽기만 가능하다.
+
+연관관계의 주인을 정하는 방법은 `mappedBy`속성을 사용하면 된다.
+
+- 주인은 `mappedBy`속성 사용 X
+- 주인이 아니면 `mappedBy` 속성을 사용해 속성의 값으로 연관관계의 주인을 지정
+
+`Member.team`, `Team.members` 둘중에서 어떤 것을 연관관계의 주인으로 지정해야할지 알아보자.
+
+```java
+// 회원 --> 팀 방향
+class Member {
+
+  // ...
+
+  @ManyToOne
+  @JoinColumn(name = "TEAM_ID")
+  private Team team;
+
+  // ...
+
+}
+
+// 팀 --> 회원 방향
+class Team {
+
+  // ...
+
+  @OneToMany
+  private List<Member> members = new ArrayList<>();
+
+  // ...
+}
+```
+
+연관관계의 주인을 정한다는 것은 외래키 관리자를 선택하는 것으로 회원 테이블에 있는 `TEAM_ID` 외래키를 관리할 관리자를
+선택해야 한다.
+
+- 회원 엔티티의 `Member.team`을 주인으로 선택할 경우 자기 테이블의 외래키를 관리함
+- 팀 엔티티의 `Team.members`를 주인으로 선택하면 물리적으로 전혀 다른 테이블의 외래키를 관리해야함
+
+
+### 5.2 연관관계의 주인은 외래키가 있는 곳
+
+**연관관계의 주인은 테이블에 외래키가 있는 곳으로 정해야 한다.** 회원 테이블이 외래키를 가지고 있으므로 `Member.team`이
+주인이 되고, 주인이 아닌 `Team.members`에는 `mappedBy = "team"`속성을 사용해 주인이 아니라는 것을 명시해준다.
+
+```java
+@OneToMany(mappedBy = "team") // 주인 아님을 명시하고, 주인인 Member.team을 지정
+private List<Member> members = new ArrayList<>();
+```
+
+**항상 기억해야할 것은 항상 다(N) 쪽이 외래키를 갖는다.** 다(N) 쪽은 항상 연관관계의 주인이기때문에 `mappedBy` 속성을
+지정할 수 있다.
 
 ## 6. 양방향 연관관계 저장
 
+양방향 연관관계를 사용해 팀과 회원들을 저장해보자.
+
+```java
+// 양방향 연관관계 저장 테스트
+@Test
+public void testSave() {
+
+    // GIVEN
+    transaction.begin();
+    Team team1 = new Team("t01", "team01"); // 팀01 저장
+    manager.persist(team1);
+
+    Member member1 = new Member("m01", "kim"); // 회원01 저장
+    member1.setTeam(team1); // 연관관계 지정
+    manager.persist(member1);
+
+    Member member2 = new Member("m02", "lee"); // 회원02 저장
+    member2.setTeam(team1); // 연관관계 지정
+    manager.persist(member2);
+    transaction.commit();
+
+    // WHEN
+    Team findTeam = manager.find(Team.class, team1.getId());
+    Member findMember1 = manager.find(Member.class, member1.getId());
+    Member findMember2 = manager.find(Member.class, member2.getId());
+
+    // THEN
+    assertEquals(team1, findTeam);
+    assertEquals(member1, findMember1);
+    assertEquals(member2, findMember2);
+}
+```
+
+```console
+Hibernate:
+    insert
+    into
+        team
+        (name, team_id)
+    values
+        (?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+```
+
+위의 코드는 이전에 단방향 연관관계 팀, 회원 저장 코드와 동일하다.
+
 ## 7. 양방향 연관관계 주의사항
 
+양방향 연관관계에서 주의해야할 점은 연관관계의 주인에는 값을 저장하하지 않고, 주인이 아닌 곳에만 값을 입력하는 경우이다.
+만약 DB에 외래키 값이 정상적으로 저장되지 않을 경우 이것부터 의심해봐야한다.
+
+```java
+// 양방향 연관관계 저장 테스트2 : 주의 사항 - 주인이 아닌 곳에만 연관관계 설정
+@Test
+public void testSaveNonOwner() {
+
+    // GIVEN
+    transaction.begin();
+    Member member1 = new Member("m01", "kim"); // 회원01 저장
+    manager.persist(member1);
+    Member member2 = new Member("m02", "lee"); // 회원02 저장
+    manager.persist(member2);
+    Team team1 = new Team("t01", "team01"); // 팀01 저장
+    team1.getMembers().add(member1); // 연관관계에서 주인이 아닌 곳에만 연관관계를 설정
+    team1.getMembers().add(member2); // 연관관계에서 주인이 아닌 곳에만 연관관계를 설정
+    manager.persist(team1);
+    transaction.commit();
+
+    // WHEN
+    Member findMember1 = manager.find(Member.class, member1.getId());
+    Member findMember2 = manager.find(Member.class, member2.getId());
+
+    // THEN
+    assertNull(findMember1.getTeam());
+    assertNull(findMember2.getTeam());
+}
+```
+
+```console
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+Hibernate:
+    insert
+    into
+        team
+        (name, team_id)``
+    values
+        (?, ?)
+```
+
+테스트가 정상적으로 통과한 것을 확인할 수 있다. 회원을 조회하면 TEAM_ID 칼럼 값들이 `null`인 것을 알 수 있는데 연관관계의
+주인이 아닌 `Team.members`에만 값을 저장했기 때문이다. 연관관계의 주인만이 외래키의 값을 변경할 수 있기 때문에 `TEAM_ID`
+외래키의 값에 `null`이 저장된다.
+
+### 7.1 순수한 객체까지 고려한 양방향 연관관계
+
+방금 위에서 살펴본 연관관계의 주인에만 값을 저장하고, 주인이 아닌 곳에는 저장하지 않았다. 그렇다면 실제로 이렇게 해도 될까?
+사실 객체 관점에서는 양쪽 방향 모두에 값을 입력해주는 것이 가장 안전하다. JPA를 사용하지 않는 순수한 객체 상태에서 심각한 문제가
+발생하기 때문이다.
+
+```java
+// 순수한 객체 연관관계 설정 : 단방향만 설정
+@Test
+public void testPureBiDirection() {
+
+    transaction.begin();
+    // 팀, 회원 객체 생성
+    Team team1 = new Team("t01", "team01");
+    Member member1 = new Member("m01", "kim");
+    Member member2 = new Member("m02", "lee");
+
+    // 연관 관계 설정 : 한쪽만 설정
+    member1.setTeam(team1); // member1 --> team1
+    member2.setTeam(team1); // member2 --> team1
+
+    List<Member> members = team1.getMembers();
+
+    assertThat(members.size(), is(2));
+}
+```
+
+위의 테스트 코드를 실행하면 아래와 같이 오류가 발생한다. `Member.team`에만 연관관계를 설정하고, 반대방향은 연관관계를 설정하지
+않았기 떄문이다. 즉 다시말해 양방향 연관관계가 제대로 설정되었다고 볼 수 없다.
+
+```console
+java.lang.AssertionError:
+Expected: is <2>
+     but: was <0>
+Expected :is <2>
+Actual   :<0>
+```
+
+```java
+// 순수한 객체 연관관계 설정 2 : 양방향 설정
+@Test
+public void testPureBiDirection2() {
+
+    // GIVEN
+    // 팀, 회원 객체 생성
+    Team team1 = new Team("t01", "team01");
+    Member member1 = new Member("m01", "kim");
+    Member member2 = new Member("m02", "lee");
+    // 연관 관계 설정 : 양쪽 다 설정
+    member1.setTeam(team1); //member1 --> team1
+    team1.getMembers().add(member1); //team1 --> member1
+    member2.setTeam(team1); // member2 --> team1
+    team1.getMembers().add(member2); //team1 --> member2
+
+    // WHEN
+    List<Member> members = team1.getMembers();
+
+    // THEN
+    assertThat(members.size(), is(2));
+}
+```
+
+위 테스트 코드를 실행하면 오류가 발생하지 않고, 기대한데로 테스트를 통과하게 된다.
+
+```java
+// JPA 양방향 설정
+@Test
+public void testORMBiDirection() {
+
+    // GIVEN
+    transaction.begin();
+    // 팀 생성 및 저장
+    Team team1 = new Team("t01", "team01");
+    manager.persist(team1);
+    // 회원 객체 생성 및 저장
+    Member member1 = new Member("m01", "kim");
+    Member member2 = new Member("m02", "lee");
+    // 연관 관계 설정 : 양쪽 다 설정
+    member1.setTeam(team1); //member1 --> team1
+    team1.getMembers().add(member1); //team1 --> member1
+    member2.setTeam(team1); // member2 --> team1
+    team1.getMembers().add(member2); //team1 --> member2
+
+    manager.persist(member1);
+    manager.persist(member2);
+    transaction.commit();
+
+    // WHEN
+    Team team = manager.find(Team.class, "t01");
+    List<Member> members = team.getMembers();
+
+    // THEN
+    assertThat(members.size(), is(2));
+}
+```
+
+```console
+Hibernate:
+    insert
+    into
+        team
+        (name, team_id)
+    values
+        (?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+```
+
+이번에는 JPA를 사용하여 양쪽에 연관관계를 설정하고 테스트를 진행하면 정상적으로 테스트가 이뤄졌다.
+순수한 객체 상태에서도 작동하고, 테이블의 외래키도 정상적으로 입력이 된다.
+
+### 7.2 연관관계 편의 메서드
+
+양방향 연관관계는 양쪽 모두를 신경써야하는데 실수로 둘중하나만 설정해주게 되면 양방향이 깨질 수 있다.
+
+```java
+// 양방향 설정, 둘중 하나라도 누락하면 양방향성이 깨진다.
+member.setTeam(team); // 회원 --> 팀
+team.getMembers().add(member); // 팀 --> 회원
+```
+
+두 코드를 하나인 것 처럼 사용하는 것이 안전하다. 그래서 `Member`클래스의 `setTeam()`메서드를 아래와
+같이 수정해보자.
+
+```java
+public class Member {
+
+  // ...
+
+  // 다대일 매핑
+  @ManyToOne
+  @JoinColumn(name = "TEAM_ID")   // 외래키 설정
+  private Team team;
+
+  // ...
+
+  // 연관관계 편의 메서드
+  public void setTeam(Team team) {
+    this.team = team; // 팀 설정
+    team.getMembers().add(this); // 팀 --> 회원
+  }
+
+}
+```
+
+`setTeam()`메서드 하나로 양방향 관계를 설정하도록 변경했다. 이제 연관관계 설정을 할 때에는 `Member.setTeam()`
+메서드만 호출하여 사용하면 된다.
+
+```java
+// JPA 양방향 설정 : 리팩토링
+@Test
+public void testORMBiDirectionRefactoring() {
+
+    // GIVEN
+    transaction.begin();
+
+    // 팀 생성 및 저장
+    Team team1 = new Team("t01", "team01");
+    manager.persist(team1);
+
+    // 회원 객체 생성 및 저장
+    Member member1 = new Member("m01", "kim");
+    Member member2 = new Member("m02", "lee");
+
+    // 연관 관계 설정 : 양쪽 다 설정
+    member1.setTeam(team1); //member1 --> team1, team1 --> member1
+    manager.persist(member1);
+
+    member2.setTeam(team1); // member2 --> team1, team1 --> member2
+    manager.persist(member2);
+
+    transaction.commit();
+
+    // WHEN
+    Team team = manager.find(Team.class, "t01");
+    List<Member> members = team.getMembers();
+
+    // THEN
+    assertThat(members.size(), is(2));
+}
+```
+
+```java
+Hibernate:
+    insert
+    into
+        team
+        (name, team_id)
+    values
+        (?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (team_id, username, member_id)
+    values
+        (?, ?, ?)
+```
+
+정상적으로 테스트가 통과하고 데이터가 DB에 저장되었다. 이렇게 한번에 양방향 관계를 설정하는 메서드를
+편의 메서드라 한다.
+
+### 7.3 편의 메서드 작성시 주의사항
+
+현재 `setTeam()`메서드의 버그가 존재한다. 회원1을 새로운 팀에 설정하였을 경우, 이전 팀과의 연관관계를
+수정하지 않았기 때문에 아래와 같이 팀1을 통해 회원을 조회하였을 경우에 여전히 회원1 존재하게 된다.
+
+```
+member1 <-----> team1
+                team2
+```
+
+```
+member1 <------ team1
+member1 <-----> team2
+```
+
+이러한 문제를 해결하기 위해 아래와 같이 코드를 수정해야한다.
+
+```java
+// 연관관계 편의 메서드
+public void setTeam(Team team) {
+
+    // 기존의 팀이 존재할 경우, 팀관계를 제거
+    if (this.team != null) {
+        this.team.getMembers().remove(this);
+    }
+
+    // 새로운 연관관계 설정
+    this.team = team;
+    team.getMembers().add(this);
+
+}
+```
+
 ## 8. Summery / Conclusion
+
+- 연관관계 매핑 키워드 : 방향, 다중성, 주인
+- 객체와 테이블의 연관관계 차이점
+  - 객체는 참조를 통해 연관관계를 맺음
+  - 객체의 양방향 연관관계는 참조 2개로 이루어지는 것
+  - 테이블은 외래키를 통해 연관관계를 맺으며 어느방향에서든 조인이 가능
+- 연관관계 매핑 애너테이션
+  - `@JoinColumn` : 외래키 매핑
+  - `@ManyToOne` : 다대일(N:1) 매핑, 연관관계의 주인
+  - `@OneToMany` : 일대다(1:N) 매핑, `mappedBy`속성을 통해 주인이 아님을 지정
+- 단방향 연관관계
+  - 저장시에는 모든 엔티티가 영속상태이어야함
+  - 조회시에는 역방향 그래프 탐색이 불가
+  - 삭제에는 제약조건 때문에 연관관계를 제거하고, 삭제해야함
+- 양방향 연관관계
+  - 다대일(`@ManyToOne`) <--> 일대다(`@OneToMany`)
+- 연관관계의 주인은 외래키가 있는 곳
+- 양방향 연관관계를 설정하기 위해 편의 메서드를 작성하는 것이 실수를 방지하는 방법
+- 편의 메서드 작성할 때는 양방향 연관관계를 설정하는 것은 물론 기존의 연관관계를 제거하는 로직도 추가해야함
