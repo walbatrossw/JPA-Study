@@ -9,7 +9,7 @@ import java.util.List;
 
 // 다대다 : 새로운 기본키 사용
 // 회원 엔티티
-@Entity
+//@Entity
 public class Member {
 
     // 회원 식별자

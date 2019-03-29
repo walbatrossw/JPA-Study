@@ -13,7 +13,8 @@ public class Locker {
 
     private String name;
 
-    @OneToOne(mappedBy = "locker")
+    // 일대일 매핑
+    @OneToOne(mappedBy = "locker") // 연관관계 주인 지정
     private Member member;
 
     public Long getId() {

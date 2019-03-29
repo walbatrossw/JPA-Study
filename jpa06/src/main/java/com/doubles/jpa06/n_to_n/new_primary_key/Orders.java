@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 // 다대다 : 새로운 기본키 생성
 // 주문 엔티티
-@Entity
+//@Entity
 public class Orders {
 
     // 기본키 자동 생성

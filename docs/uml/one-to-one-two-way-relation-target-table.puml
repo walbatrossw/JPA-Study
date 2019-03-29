@@ -1,0 +1,41 @@
+@startuml
+
+title 일대일 대상 테이블에 외래키 - 양방향 객체, 테이블 연관관계
+
+class Member {
+    - id : String
+    - username : String
+    - locker : Locker
+
+}
+
+class Locker {
+    - id : String
+    - Name : String
+    - member : Member
+}
+
+Member --> "1" Locker : locker
+
+Member "1" <.. Locker : member
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(MEMBER) {
+    primary_key(MEMBER_ID)
+    foreign_key(LOCKER_ID)
+    USERNAME
+}
+
+table(LOCKER) {
+    primary_key(LOCKER_ID)
+    NAME
+}
+
+MEMBER |o--o| LOCKER
+
+@enduml

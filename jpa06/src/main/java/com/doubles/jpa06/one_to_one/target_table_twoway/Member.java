@@ -13,6 +13,7 @@ public class Member {
 
     private String name;
 
+    // 일대일 매핑
     @OneToOne(mappedBy = "member")
     private Locker locker;
 

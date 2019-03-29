@@ -13,8 +13,9 @@ public class Member {
 
     private String username;
 
+    // 일대일 매핑
     @OneToOne
-    @JoinColumn(name = "LOCKER_ID")
+    @JoinColumn(name = "LOCKER_ID") // 외래키 설정
     private Locker locker;
 
     public Long getId() {

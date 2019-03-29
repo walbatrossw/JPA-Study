@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 // 다대다 : 새로운 기본키 사용
-@Entity
+//@Entity
 public class Product {
 
     // 상품 식별자

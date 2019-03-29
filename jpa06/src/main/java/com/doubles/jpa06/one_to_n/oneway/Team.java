@@ -5,18 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 // 일대다 단방향
-//@Entity
+@Entity
 public class Team {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "TEAM_ID")
     private Long id;
 
     private String name;
 
-    @OneToMany
-    @JoinColumn(name = "TEAM_ID")
+    @OneToMany  // 일대다 매핑
+    // 일대다에서 명시하지 않을 경우 조인테이블을 생성
+    @JoinColumn(name = "TEAM_ID")   // MEMBER 테이블의 TEAM_ID 외래키를 관리
     private List<Member> members = new ArrayList<Member>();
 
     public Team() {

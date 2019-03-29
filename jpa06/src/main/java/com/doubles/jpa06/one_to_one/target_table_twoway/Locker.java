@@ -13,6 +13,7 @@ public class Locker {
 
     private String name;
 
+    // 일대일 매핑
     @OneToOne
     @JoinColumn(name = "MEMBER_ID")
     private Member member;

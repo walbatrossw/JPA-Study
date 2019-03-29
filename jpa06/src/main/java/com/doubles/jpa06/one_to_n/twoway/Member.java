@@ -13,6 +13,7 @@ public class Member {
 
     private String username;
 
+    // 읽기 전용 설정
     @JoinColumn(name = "TEAM_ID", insertable = false, updatable = false)
     private Team team;
 

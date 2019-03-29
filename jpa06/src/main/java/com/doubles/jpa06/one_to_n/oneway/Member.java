@@ -1,20 +1,19 @@
 package com.doubles.jpa06.one_to_n.oneway;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 // 일대다 단방향
-//@Entity
+@Entity
 public class Member {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "MEMBER_ID")
     private Long id;
 
     private String username;
+
+    // 참조 필드가 없음
 
     public Member() {
     }
