@@ -15,9 +15,9 @@ class Locker {
     - member : Member
 }
 
-Member --> "1" Locker : locker
+Member ..> "1" Locker : locker
 
-Member "1" <.. Locker : member
+Member "1" <-- Locker : member
 
 !define table(x) class x << (T,#FFAAAA) >>
 !define primary_key(x) <b>x</b>

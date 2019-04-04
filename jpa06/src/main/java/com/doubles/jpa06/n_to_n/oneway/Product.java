@@ -6,7 +6,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 // 다대다 단방향
-//@Entity
+// 상품 클래스
+@Entity
 public class Product {
 
     @Id

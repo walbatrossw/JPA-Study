@@ -440,15 +440,121 @@ public class Locker {
 
 #### 3.2.2 양방향
 
-![one-to-one-two-way-target](http://plantuml.com/plantuml/uml/VL3BJi905DtFLrnnGnEASKkQ9gWbCL9CGDUafGDCw8DCXmGY9lZQkT34W2vmfGjtH5cmy8je-GSxJ2c446ycypZdt7DFXX5cOmZ7ly7Z8Dg17tSti7Xu3CVJOFOIZfuWV9i5xw-Bsm-G8Hm-1vElnV0JvfDn-3tDhAKGZYRpwO2ldtk4QhRX-w1ZnyGKhX149GEn80SLHedRY96EZwbhE7WRjxrQAshCGN5vGUXwPIc0VonBE-mSaICN1-9kSJHPLY5rc4hcn327b6msWVSiN2Sk1cQODavt9H1Xkg0eaBx8x1SA-QWaKDL4sgR4CMYlsi8ztg2OQbSvCDTytQEODDo4xt2-ew8ciN0Kc3KzonSFds6AFTPhOnyXaK3Nz2EjBCNVi3bACDNJ4sb9RKufdX-VRL2N5QrSokiQ_mtXAWIxNBTQLsrY6FGzMVRw84Je3m00)
+![one-to-one-two-way-target](http://www.plantuml.com/plantuml/png/VP3BJi9058RtynH7tD24OjmsJHFKaXWf9g1hqj819lH2fYM1Y0dUTYuqCQ0BNEd27L4MB7mYEho37QPSGeYJPgPpldF-_y-497GmiD5lzDYFT-37tGtC7nxPQ19DNzZm2TZRD7f_dTz-W0niy1oDl-Q3JvYDH-nxabct0XkEPvC-_txk4QewPX20WLqBKxX242yPY0qAb4DAl7fIQGUOUgQBj-kENst6WmeK5Zy8NIybHU4VoU8EELVaK990N2s9birga3fCBMMLn7d5ELDbUSs5549xDguH3qDeMWvEToGGyJgWgf2-oEpdyxbuIQ1fgzOM9Qv9kvKcxl81rT8wwe6rvZMVObBtLhpDULj33MBZs3Ti-7OWBa68AVR3RWi728a4XcuSwIKfUPXDAq4gfoVI0csw5CwFppRGPLal5NE6pjz7g8g6NQfReyinOGOzNvRz7eWcz0S0)
+
+대상 테이블에 외래키가 있는 양방향 관계는 아래의 코드와 같이 작성할 수 있다. 일대일 매핑에서 대상 테이블에
+외래키를 두고 양방향 매핑을 설정한다.
 
 ```java
+// 일대일 양방향 대상테이블의 외래키
+@Entity
+public class Member {
 
+    @Id
+    @GeneratedValue
+    @Column(name = "MEMBER_ID")
+    private Long id;
+
+    private String name;
+
+    // 일대일 매핑
+    @OneToOne(mappedBy = "member")  // 연관관계 주인 지정
+    private Locker locker;
+
+    // getter, setter
+
+}
+```
+
+```java
+// 일대일 양방향 대상테이블의 외래키
+@Entity
+public class Locker {
+
+    @Id
+    @GeneratedValue
+    @Column(name = "LOCKER_ID")
+    private Long id;
+
+    private String name;
+
+    // 일대일 매핑
+    @OneToOne
+    @JoinColumn(name = "MEMBER_ID") // 외래키 지정
+    private Member member;
+
+    // getter, setter
+
+}
 ```
 
 ## 4. 다대다
 
+관계형 데이터베이스에서는 정규화된 테이블 2개로 다대다 관계를 표현할 수 없다.
+
+예를 들어 회원들이 상품을 주문 하고, 상품들은 회원에 의해 주문되어진다고 가정한다면 이 관계는 다대다 관계이다. 이러한 다대다 관계를 아래와 같이 표현할 수는 없다.
+
+![n-to-n-table-unable](http://www.plantuml.com/plantuml/png/AyaioKbLUDlQysRkbjSxfhoPFk5Dono5rziwNcreUDsrzEtKEGf-LhuAhxkNlEvf099SN8efgMcPUQaA9Ob9EQaQ5PeAoJc9nSKA5GesDWeQ8JhARcwEGA2fO6S7LrfGb9cRM5GPdvrQ2T9WasHNOQEVX91FoozApKpFWykNWkHBxRWoCbDI5N9JIpBoKueXdEAIrABK_9BAWjHYBYw82tnTVPrSWpGLghaKW03PAeXClAUB9bWgDDWroC_HrvMh5gOr8CZV9TGv19jUg1HSCqmZn4o5sdnTtVng1QWgBW00)
+
+보통 이러한 경우 다대다 관계를 일대다(1:N), 다대일(N:1) 관계로 풀어내는 연결 테이블을 사용한다.
+
+![n-to-n-linked-table](http://www.plantuml.com/plantuml/png/AyaioKbLyBFoLNZTlUHrJmEGL7WpVSEhJHiKthRsl9cxvVMEALnSYYcfQPbvgGebYKavgHeLcWh9EOd5nGeL2ZOs2XeXEifkRev0eAbWPmTNMb2KcPjOL1cVdLe9qc2JP5TXev-4a4_BBqhDJC-3ovU2v4ljk38oKr8LSbDBCl9JYY6SufBKejJyaig2r68kBeWBV5rzdLo3D1MgkHI00DagY4oyfuicM2eqs3N8pz7NbQiMLMjyG92_IwXp215683iKJGfP5zH0hDgGvU0EmUC2TBDWFe1Ohr1JewkRNws0wXEOB8olK9klgrjJem2J1W00)
+
+위와 같이 `MEMBER_PRODUCT` 연결테이블을 추가해서 다대다 관계를 풀어낼 수 있다. 이 연결 테이블은 회원이 주문한 상품을 나타낸다.
+
+![n-to-n-entity](http://www.plantuml.com/plantuml/png/AyaioKbLUDszv7LF0v1KU3Dzojlk3K34nPMSarXShE2RcfkKMgHGpSLL2nCAACfFAKqkWOf15IXfAIdewe8fg3mN5m00)
+
+하지만 객체의 경우는 테이블과 다르게 객체 2개로 다대다 관계를 나타낼 수 있다. 회원 객체는 컬렉션을 사용해
+상품들을 참조하면 되고, 상품들도 컬렉션을 사용해 회원들을 참조하면 된다. `@ManyToMany`를 사용하면 이러한 다대다 관계를 편리하게 매핑할 수 있다.
+
 ### 4.1 단방향
+
+다대다 단방향 관계는 아래와 같이 코드를 작성해주면 된다.
+
+```java
+// 다대다 단방향
+// 회원 클래스
+@Entity
+public class Member {
+
+    @Id
+    @Column(name = "MEMBER_ID")
+    private String id;
+
+    private String username;
+
+    @ManyToMany // 다대다 매핑
+    @JoinTable(name = "MEMBER_PRODUCT", // 연결테이블 지정
+            joinColumns = @JoinColumn(name = "MEMBER_ID"), // 현재 방향인 회원과 매핑할 조인 컬럼 정보 지정
+            inverseJoinColumns = @JoinColumn(name = "PRODUCT_ID")) // 반대 방향인 상품과 매핑할 조인 컬럼 정보 지정
+    private List<Product> products = new ArrayList<Product>();
+
+    // constructor, getter, setter
+}
+```
+
+```java
+// 다대다 단방향
+// 상품 클래스
+@Entity
+public class Product {
+
+    @Id
+    @Column(name = "PRODUCT_ID")
+    private String id;
+
+    private String name;
+
+    // constructor, getter, setter
+}
+```
+
+회원 엔티티와 상품 엔티티를 `@ManyToMany`와 `@JoinTable`을 사용해서 연결테이블을 바로 매핑하여,
+회원과 상품을 연결하는 엔티티 없이 매핑을 완료할 수 있다.
+
+- `@JoinTable.name` : 연결테이블(`MEMBER_PRODUCT`) 지정
+- `@JoinTable.joinColumns` : 현재 방향인 회원과 매핑할 조인 컬럼(`MEMBER_ID`) 정보를 지정
+- `@JoinTable.inverseJoinColumns` : 반대 방향인 상품과 매핑할 조인 칼럼(`PRODUCT_ID`) 정보 지정
 
 ### 4.2 양방향
 

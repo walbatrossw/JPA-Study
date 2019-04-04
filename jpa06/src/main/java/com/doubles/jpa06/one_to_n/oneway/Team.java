@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // 일대다 단방향
-@Entity
+//@Entity
 public class Team {
 
     @Id

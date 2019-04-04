@@ -29,7 +29,7 @@
             -->
 
             <!-- 옵션 -->
-            <property name="hibernate.hbm2ddl.auto" value="create" /> <!-- DDL 자동 생성-->
+            <property name="hibernate.hbm2ddl.auto" value="update" /> <!-- DDL 자동 생성-->
             <property name="hibernate.show_sql" value="true" /> <!--하이버네이트가 실행한 SQL을 출력-->
             <property name="hibernate.format_sql" value="true" /> <!--하이버네이트가 실행한 SQL을 출력할 때 정렬-->
             <!--<property name="hibernate.use_sql_comments" value="true" /> &lt;!&ndash;쿼리를 출력할 때 주석도 함께&ndash;&gt;-->

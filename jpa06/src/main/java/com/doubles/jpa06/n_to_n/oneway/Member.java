@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 // 다대다 단방향
-//@Entity
+// 회원 클래스
+@Entity
 public class Member {
 
     @Id

@@ -1,0 +1,32 @@
+@startuml
+
+title N:M 다대다 연결 테이블
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(MEMBER) {
+    primary_key(MEMBER_ID)
+    USERNAME
+}
+
+table(MEMBER_PRODUCT) {
+    primary_key(MEMBER_ID)
+    foreign_key(MEMBER_ID)
+    primary_key(PRODUCT_ID)
+    foreign_key(PRODUCT_ID)
+}
+
+table(PRODUCT) {
+    primary_key(PRODUCT_ID)
+    NAME
+}
+
+MEMBER ||--o{ MEMBER_PRODUCT
+
+MEMBER_PRODUCT }o--|| PRODUCT
+
+@enduml

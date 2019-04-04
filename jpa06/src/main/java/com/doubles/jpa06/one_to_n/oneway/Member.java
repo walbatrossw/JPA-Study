@@ -3,7 +3,7 @@ package com.doubles.jpa06.one_to_n.oneway;
 import javax.persistence.*;
 
 // 일대다 단방향
-@Entity
+//@Entity
 public class Member {
 
     @Id
