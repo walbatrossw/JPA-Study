@@ -488,7 +488,7 @@ public class Locker {
 }
 ```
 
-## 4. 다대다
+## 4. 다대다(N:M)
 
 관계형 데이터베이스에서는 정규화된 테이블 2개로 다대다 관계를 표현할 수 없다.
 
@@ -552,11 +552,129 @@ public class Product {
 회원 엔티티와 상품 엔티티를 `@ManyToMany`와 `@JoinTable`을 사용해서 연결테이블을 바로 매핑하여,
 회원과 상품을 연결하는 엔티티 없이 매핑을 완료할 수 있다.
 
+아래는 `@JoinTable`의 속성에 대한 설명이다.
+
 - `@JoinTable.name` : 연결테이블(`MEMBER_PRODUCT`) 지정
 - `@JoinTable.joinColumns` : 현재 방향인 회원과 매핑할 조인 컬럼(`MEMBER_ID`) 정보를 지정
 - `@JoinTable.inverseJoinColumns` : 반대 방향인 상품과 매핑할 조인 칼럼(`PRODUCT_ID`) 정보 지정
 
+다대다를 저장하는 코드는 아래와 같다.
+
+```java
+@Test
+public void testSave() {
+    // GIVEN
+    transaction.begin();
+    Product productA = new Product("productA", "상품A"); // 상품 생성, 저장
+    manager.persist(productA);
+
+    Member member1 = new Member("m01", "kim");  // 회원 생성, 저장
+    member1.getProducts().add(productA); // 연관관계 설정
+    manager.persist(member1);
+    transaction.commit();
+
+    // WHEN
+    Member findMember = manager.find(Member.class, member1.getId());
+    List<Product> products = findMember.getProducts(); // 상품 그래프 탐색
+
+    // THEN
+    assertEquals(member1, findMember);
+    assertEquals(productA.getId(), products.get(0).getId());
+}
+```
+
+콘솔화면을 보면 아래와 같이 회원과 상품의 연관관계를 설정했기 때문에 회원을 저장할 때 연결 테이블에도 값이
+저장되는 것을 확인할 수 있다.
+
+```console
+Hibernate:
+    insert
+    into
+        product
+        (name, product_id)
+    values
+        (?, ?)
+Hibernate:
+    insert
+    into
+        member
+        (username, member_id)
+    values
+        (?, ?)
+Hibernate:
+    insert
+    into
+        member_product
+        (member_id, product_id)
+    values
+        (?, ?)
+```
+
+상품을 탐색하는 테스트 코드를 작성하면 아래와 같다.
+
+```java
+@Test
+public void testFind() {
+    // GIVEN
+
+    // WHEN
+    Member member = manager.find(Member.class, "m01");
+    List<Product> products = member.getProducts();
+
+    // THEN
+    assertEquals("m01", member.getId());
+    assertEquals("productA", products.get(0).getId());
+}
+```
+
+회원을 조회하고, 상품을 조회하면 아래와 같이 `MEMBER_PRODUCT`테이블과 상품 테이블을 조인해서 연관된
+상품을 조회하는 SQL이 실행된다.
+
+```console
+Hibernate:
+    select
+        member0_.member_id as member_i1_0_0_,
+        member0_.username as username2_0_0_
+    from
+        member member0_
+    where
+        member0_.member_id=?
+Hibernate:
+    select
+        products0_.member_id as member_i1_0_0_,
+        products0_.product_id as product_2_1_0_,
+        product1_.product_id as product_1_2_1_,
+        product1_.name as name2_2_1_
+    from
+        member_product products0_
+    inner join
+        product product1_
+            on products0_.product_id=product1_.product_id
+    where
+        products0_.member_id=?
+```
+
 ### 4.2 양방향
+
+다대다 매핑을 양방향으로 설정하기 위해서는 역방향에서도 `@ManyToOne`을 사용한다. 그리고 양쪽에서 원하는
+곳에 `mappedBy`로 연관관계의 주인을 지정한다.
+
+```java
+// 다대다 양방향
+@Entity
+public class Product {
+
+    @Id
+    private String id;
+
+    private String name;
+
+    @ManyToMany(mappedBy = "products") // 역방향 추가
+    private List<Member> members = new ArrayList<Member>();
+
+    // constructor, getter, setter
+}
+```
 
 ### 4.3 연결 엔티티
 

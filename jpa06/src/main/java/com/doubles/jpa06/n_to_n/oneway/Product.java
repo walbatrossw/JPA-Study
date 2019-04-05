@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 // 다대다 단방향
 // 상품 클래스
-@Entity
+//@Entity
 public class Product {
 
     @Id

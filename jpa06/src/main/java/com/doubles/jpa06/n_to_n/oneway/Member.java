@@ -6,7 +6,7 @@ import java.util.List;
 
 // 다대다 단방향
 // 회원 클래스
-@Entity
+//@Entity
 public class Member {
 
     @Id
