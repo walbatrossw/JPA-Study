@@ -1,0 +1,34 @@
+@startuml
+
+title 구현 클래스마다 테이블
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(ALBUM) {
+    primary_key(ITEM_ID)
+    NAME
+    PRICE
+    ARTIST
+}
+
+table(MOVIE) {
+    primary_key(ITEM_ID)
+    NAME
+    PRICE
+    DIRECTOR
+    ACTOR
+}
+
+table(BOOK) {
+    primary_key(ITEM_ID)
+    NAME
+    PRICE
+    AUTHOR
+    ISBN
+}
+
+@enduml

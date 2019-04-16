@@ -1,0 +1,42 @@
+@startuml
+
+title 조인 테이블
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(ITEM) {
+    primary_key(ITEM_ID)
+    NAME
+    PRICE
+    DTYPE
+}
+
+table(ALBUM) {
+    primary_key(ITEM_ID)
+    foreign_key(ITEM_ID)
+    ARTIST
+}
+
+table(MOVIE) {
+    primary_key(ITEM_ID)
+    foreign_key(ITEM_ID)
+    DIRECTOR
+    ACTOR
+}
+
+table(BOOK) {
+    primary_key(ITEM_ID)
+    foreign_key(ITEM_ID)
+    AUTHOR
+    ISBN
+}
+
+ITEM --o| ALBUM
+ITEM --o| MOVIE
+ITEM --o| BOOK
+
+@enduml

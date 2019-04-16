@@ -1,0 +1,23 @@
+@startuml
+
+title 싱글 테이블
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(ITEM) {
+    primary_key(ITEM_ID)
+    NAME
+    PRICE
+    ARTIST
+    DIRECTOR
+    ACTOR
+    AUTHOR
+    ISBN
+    DTYPE
+}
+
+@enduml
