@@ -1,15 +1,41 @@
 # 다양한 연관관계 매핑
 
-연관관계들에 대해 정리해보자.
+## 1. 연관관계를 매핑할 때 고려해야할 사항
 
-## 1. 다대일(N:1)
+여러가지 연관관계들에 대해 정리하기에 앞서 이전에 정리했던 내용들을 복습해보자.
+
+### 1.1 다중성
+
+- 다대일(`@ManyToOne`)
+- 일대다(`@OneToMany`)
+- 일대일(`@OneToOne`)
+- 다대다(`@ManyToMany`)
+
+### 1.2 단방향, 양방향
+
+- 테이블의 경우 외래키 하나로 조인을 사용해 양방향으로 쿼리가 가능하므로 방향이라는 개념이 없다.
+- 객체는 참조용 필드를 가진 객체만 연관된 객체를 조회할 수 있다.
+- 객체관계에서 한 쪽만 참조하는 것을 단방향 양쪽을 참조하는 것을 양방향 관계라 한다.
+
+### 1.3 연관관계의 주인
+
+- DB는 외래키 하나로 두 테이블이 연관관계를 맺기 떄문에 테이블의 연관관계를 관리하는 포인트는 외래키 하나다.
+- 엔티티를 양방향으로 매핑하면 2곳에서 서로를 참조하기 때문에 연관관계를 관리하는 포인트는 2곳이다.
+- 두 객체의 연관관계 중 하나를 정해 DB의 외래키를 관리하는데 이것을 연관관계의 주인이라 한다.
+- 외래키를 가진 테이블과 매핑한 엔티티가 외래키를 관리하는 것이 효율적이다.
+- 주인이 아닌방향은 외래키를 변경할수 없고, 읽기만 가능하다.
+- 연관관계의 주인은 `mappedBy`속성을 사용하지 않는다.
+- 연관관계의 주인이 아닐 경우 `mappedBy`속성을 사용하고 연관관계의 주인 필드 이름을 값으로 입력한다.
+
+
+## 2. 다대일(N:1)
 
 다대일(N:1) 관계의 반대방향은 항상 일대다(1:N)이며, DB 테이블의 외래키는 항상 다(N) 쪽에 있기때문에 연관관계의 주인은
 항상 다(N)이다.
 
-### 1.1 단방향
+### 2.1 단방향 [N:1]
 
-![n-to-1-oneway](http://www.plantuml.com/plantuml/png/RP31JeD048RlynHZlPH4gju92KQQUC13nNC3ChKReJIxImBH9ZtepQE9Uk0T6kNWCo6-Wy1IR1CdsTrClld_sHd9P4XORlBgewZUr_Zpz5pbnVVNIvM_OVMwAOirrgVyV0HmREVCdk0grlNu0LtRSW1kGay8T2ZoYUCzO1qiQ1-Nl0XbVRLP8eWll8XWjTMqV4-nvPqRwhg9WvFHw7JG5WCS13HZ2qBf-I4DKmsLKug6WKFtw70yjkhGq3JxqYLdaSUpwHrbZS3mpTGuzl_uBER4RXSzJngUc31d0M54SXu7GYL24gTOPaiI0Ee7QY5QDyLkAqMc5-TQYtQxD7lhmVMLFRcq7BiPMtas-3_7FLad-GK0)
+![n-to-1-oneway](http://www.plantuml.com/plantuml/png/TL4_Jy905D_lKpphGer5S3HD4umbCR4CW3DfxGCQQKkkHm9H4WQTT37npyI6KJUY30v-8bg-WtTSgHZnqgJltk_VkppciGv2V3E9RqV9-8jNh_7qRV7uJCXPnuuYiD1taC850Nuqy5muW9CmQALtXhRFEtN-Ipkz26bW-yYxDKOzpXokl0JhNwS_cZHPsL50qmnGYegC8LikDhq0WTbE1tDz5QHx7tGTSlNTxNAvn8yAXf5HkzJpRJfedED027J7wEjxpW_U32bwhI33UmBl6QJjkGW-idReHl8ICQGOia4N8qBa19Pf7PfLDNtPUfH46iT7wX9QJwcR9Ii3JcjcjLAoJF5iwIdWJOw_P2k9Z85Xg6dX9GWA8K7849JaQJgVZSJtSGNnosJnSAU07K6ba1Bcqt7oFeDrdYGKKyBY-ZOPp-BF-msS_Mn9cd2i583lIGwJ8NbXjLpyibhDcXTgCQcilW40)
 
 ```java
 // 다대일 단방향
@@ -53,9 +79,9 @@ public class Team {
 참조할 수 없다. `@JoinColumn(name = "TEAM_ID")`를 사용하여 `Member.team` 필드를 `TEAM_ID`외래키와
 매핑하였고, `Member.team` 필드를 통해 회원 테이블의 `TEAM_ID` 외래키를 관리한다.
 
-### 1.2 양방향
+### 2.2 양방향 [N:1, 1:N]
 
-![n-to-1-twoway](http://www.plantuml.com/plantuml/png/VL6xJiCm5Dtz5PUmD8WKM54KAOXKGY8TsZ9N2RbjBVAeR4TA19KO-06MCZ4oi4NGhohX7x3h40ggi2nPznpVSywr1HKnGhry_AXUFvSliAwUwxSLr4_LUdMlzli38Rxddta3M6IMbTt1o7DzGgxZW7FmCGcHmIq1kIoW4Pp2K32QJXiavyZI8C6_kC0WaTX87eGilkLK-OzOVuTGiad09Nn9kL1IJIRZm03RiXmmZhlT4wEnsejmGbC44OGnTWeJj741jWsTqU5-h-VAPOBZj5VdZ2O1AyStMAe6EtGA-oZyuISPGpfDMpvNVEwG6OrGnXEpBEAwu08PPgAS8oT49z1FQpP3RrjfPdnnRcweRHVr0ornDVG6VTVtrEXQKz6x57-rDIrV)
+![n-to-1-twoway](http://www.plantuml.com/plantuml/png/TL8nJy906DtlLtpM1Gojr94qJJ2MnCHs09oC8Qqze96sf7Sa42LXq4aN4iM93MFSY38u-8je-G_sUct512-NzBxllU-zbxjIX_OmX0-By74IpRyXcat3vVjczdfXLEGIo1NZ4g6hdaa8wDYrS00t2E8bWcD31SvyhvFM0u83ptHnt6tGmCdx59jkt6l67uJ6cHWh_vKoTiYuYJjXH8TG9fJc4JBa00G0HPAuLOgAeWf24a4MqWm8xTcuxNWOg6drS65O19vf28e2XMPflrQhngi8gffJ-u7Zci6eTOr7R42nrA5oQFtYRJ_0JiVByG731ohgEZQEizEkRnDU48e3xDDH7nE4U09Tqu-rUZ6zZsqhZhHEJue9jEtIrAfw3fmtjBfHrJLsBroJmRiK_unb8zm6nhue-hV0A0XvFiKWH2_BzMh2zkSTX6-BpVDK09E0KKu9w-Ky-bZ1DeyJv9ImkN-Cvglmwsa7voX_HP4f6cM8duk7oH69IIM_ItBAiaficYNbfny0)
 
 ```java
 // 다대일 양방향
@@ -661,6 +687,7 @@ Hibernate:
 
 ```java
 // 다대다 양방향
+// 상품 클래스
 @Entity
 public class Product {
 

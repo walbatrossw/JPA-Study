@@ -1,21 +1,19 @@
 @startuml
 
-title 객체와 테이블의 연관 관계
-
-MEMBER }o--o| TEAM
+title 다대일 단방향
 
 class Member {
-    id
-    Team team
-    username
+    - id : Long
+    - team : Team
+    - username : String
 }
 
 class Team {
-    id
-    name
+    - id : Long
+    - name : String
 }
 
-Member  --> "0..1" Team
+Member "*" --> "1" Team
 
 !define table(x) class x << (T,#FFAAAA) >>
 !define primary_key(x) <b>x</b>
@@ -33,5 +31,20 @@ table(TEAM) {
     primary_key(TEAM_ID)
     NAME
 }
+
+MEMBER }o--o| TEAM
+
+note "연관관계 매핑" as N0
+note "객체 연관관계" as N1
+note "테이블 연관관계" as N2
+
+Member - N0
+N0 -> MEMBER
+
+Member . N1
+Team . N1
+
+MEMBER . N2
+TEAM . N2
 
 @enduml
