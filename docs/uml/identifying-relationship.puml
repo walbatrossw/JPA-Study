@@ -1,0 +1,63 @@
+@startuml
+
+title 식별, 비식별 관계
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(PARENT1) {
+    primary_key(PARENT_ID)
+    NAME
+}
+
+table(CHILD1) {
+    primary_key(PARENT_ID)
+    foreign_key(PARENT_ID)
+    primary_key(CHILD_ID)
+    NAME
+}
+
+table(PARENT2) {
+    primary_key(PARENT_ID)
+    NAME
+}
+
+table(CHILD2) {
+    primary_key(CHILD_ID)
+    foreign_key(PARENT_ID)
+    NAME
+}
+
+table(PARENT3) {
+    primary_key(PARENT_ID)
+    NAME
+}
+
+table(CHILD3) {
+    primary_key(CHILD_ID)
+    foreign_key(PARENT_ID)
+    NAME
+}
+
+PARENT1 ||--o{ CHILD1
+
+PARENT2 ||..o{ CHILD2
+
+PARENT3 |o..o{ CHILD3
+
+note "식별 관계" as n1
+
+note "필수적 비식별 관계" as n2
+
+note "선택적 비식별 관계" as n3
+
+PARENT1 - n1
+
+PARENT2 - n2
+
+PARENT3 - n3
+
+@enduml

@@ -103,7 +103,7 @@ public class Book extends Item {
 
 ### 1.2 단일 테이블 전략
 
-**단일 테이블 전략은 테이블 하나만 사용하고, 구분칼럼으로 어떤 자식 데이터가 저장되었는지 구분한다** 조회할 때
+**단일 테이블 전략은 테이블 하나만 사용하고, 구분칼럼으로 어떤 자식 데이터가 저장되었는지 구분한다.** 조회할 때
 조인을 사용하지 않으므로 일반적으로 가장 빠르다.
 
 #### 1.2.1 예제 코드
@@ -251,13 +251,190 @@ public class Movie extends Item {
 - 특징
   - 구분 칼럼을 사용하지 않음
 
+이 전략은 DB설계자와 ORM 전문가 둘다 추천하지 않는 방식이다.
+
 ## 2. @MappedSuperClass
 
-등록일과 수정일 같이 여러 엔티티에서 공통으로 사용하는 매핑정보만 상속받고 싶을 경우 이 기능을 사용
+**등록일과 수정일 같이 여러 엔티티에서 공통으로 사용하는 매핑정보만 상속받고 싶을 경우 이 기능을 사용한다.**
+지금까지는 상위, 하위 클래스 모두 DB 테이블과 매핑했지만 상위 클래스는 테이블과 매핑하지 않고 하위 클래스에게
+매핑 정보만 제공할 때 사용한다.
+
+### 2.1 예제 코드
+
+![MappedSuperClass](http://www.plantuml.com/plantuml/png/ZOyzJiD048NxFSKGcbZ2WWDO5ebmH2JR84oFrdY2L_XFthLa2oWGa0ewsjmXa4IYu4J6kGF-mmcYOPgTcVU-jxk22G_XqA1HX8wLH1XVUfHpM3yz5xFbryThllY4V3uhtfU4x3WuOG62eBQ7_LI2nfk2ea3_V6ztD1gK9O6gTjOePZwDiujhp2f0iTLKsRSt-YICaLq5dPvKUg8Ibpa8FWetT7WpS84nXYABa1FIlC3GZA5s9i4DWRAshneVIVNE71XQtMZ6OAoJkn_IqdJzdwHrV79Q3oLCcWyFAKSj44naRG1pwYEWFbQsncMWRsFSEj2dpDje5dfUft4tZCmMtOfMRcMv3VcpRdX2Wb0WzFB5QZrTGJ5zAHxVe7YuBxiUK0xcmQz4kLfy0m00)
+
+
+```java
+// 부모 클래스는 테이블과 매핑 X
+// 자식 클래스에게 매핑 정보만 제공하고 싶을 경우 사용
+@MappedSuperclass
+public abstract class BaseEntity {
+
+    // 식별자
+    @Id
+    @GeneratedValue
+    private Long id; // 공통 속성
+
+    // 이름
+    private String name; // 공통 속성
+
+    // ...
+}
+```
+
+```java
+@Entity
+@AttributeOverride(name = "id", column = @Column(name = "MEMBER_ID"))   // 상속받은 칼럼 이름 재정의 - 하나만
+public class Member extends BaseEntity {
+
+    // 식별자, 이름 상속
+
+    // 이메일
+    private String email;
+
+    // ...
+}
+```
+
+```java
+@Entity
+@AttributeOverrides({ // 상속 받은 칼럼명을 다수 변경하고 싶을 경우
+        @AttributeOverride(name = "id", column = @Column(name = "SELLER_ID")),      // 상속 받은 칼럼명 재정의
+        @AttributeOverride(name = "name", column = @Column(name = "SELLER_NAME"))   // 상속 받은 칼럼명 재정의
+})
+public class Seller extends BaseEntity {
+
+    // 식별자, 이름 상속
+
+    // 샵 이름
+    private String shopName;
+
+
+}
+```
+
+- `@AttributeOverride` : 상위 클래스로부터 물려받은 매핑 정보를 재정의
+- `@AttributeOverrides` : 상위 클래스로부터 물려받은 매핑 정보들(둘 이상)을 재정의
+- `@AssociationOverride` : 연관관계를 재정의
+- `@AssociationOverrides` : 연관관계들(둘 이상)을 재정의
+
+### 2.2 특징
+
+- `@MappedSuperClass`로 지정한 클래스는 엔티티가 아니기 때문에 `em.find()`나 JPQL 사용불가
+- 이 클래스를 직접 사용할 일이 거의 없기 때문에 추상 클래스로 만드는 것을 권장
+
+`@MappedSuperClass`는 테이블과 무관하고, 단순히 엔티티가 공통으로 사용하는 매핑정보만 모아주는 역할을 수행한다.
+등록일자, 수정일자, 등록자, 수정자 같은 여러 엔티티에서 공통으로 사용하는 속성을 효과적으로 관리할 수 있다.
 
 ## 3. 복합키와 식별관계 매핑
 
-데이터베이스의 식별자가 하나 이상일 때 매핑하는 방법, 데이터베이스 설계에서 이야기하는 식별관계와 비식별 관계
+데이터베이스의 식별자가 하나 이상일 때 매핑하는 방법과 데이터베이스 설계에서 이야기하는 식별관계와 비식별 관계에 대해 알아보자.
+
+### 3.1 식별관계와 비식별 관계
+
+**DB 테이블 사이의 관계는 외래키가 기본키에 포함되는지에 따라 식별관계와 비식별관계로 구분할 수 있다.**
+
+![identifying-relationship](http://www.plantuml.com/plantuml/png/AyaioKbLUDCzz_Nc5Xs5rpjR84o5LriQNcrkuU9IJ4bDoynBLIX9JCf9rQZGL4ZEIImkLgXGiB5Hq0ZHKNPpSmG2JGKxExZIWgBCtCIYolZir4gG1fiakmeR_II4V5f-KMfcUXvSlXGaNsh7bP6PaggGcrgIaPzI3E4KbwGMfUQNL1Qa5dDnGLmGu1ZawXTYgAbGpQK01CXsGQJYFLqqmL9-ZhwkNBKmVSuUdZukn6X3TXsQ5B8ki7aux89eCoBFZLYreTg6nudO769CdaECgU8GQ7mfrDJewkPNAq2Y0IPi11JMquC96y64ZHLgyX72nbnSUVabgGfAA2bJII6nM27F42RtTchBcuuPRnOqOYHXY48Zk24j2zuspyMjq1ZXP5sm-J2Nwe8DWJbG5wGI0000)
+
+- 식별 관계 : 부모 테이블의 기본키를 내려받아 자식 테이블의 기본키 + 외래키로 사용
+- 비식별 관계 : 부모 테이블의 기본키를 내려받아 자식 테이블의 외래키로만 사용
+  - 필수적 비식별 관계 : 외래키 NULL 허용하지 않음, 연관관계 필수
+  - 선택적 비식별 관계 : 외래키 NULL 허용, 연관관계 선택
+
+### 3.2 복합키 : 비식별 관계 매핑
+
+기본 키를 구성하는 컬럼이 하나일 경우 이전에 작성한 것처럼 단순하게 매핑하면 된다. 하지만 둘 이상의 컬럼으로
+구성된 복합 키본키는 별도의 식별자 클래스를 만들어야하고 그곳에 `equals()`와 `hashCode()`를 구현해야 한다.
+
+JPA는 복합키를 지원하기 위해 `@IdClass`와 `@EmbeddedId` 2가지 방법을 제공한다.
+
+#### 3.2.1 @IdClass
+
+`@IdClass`는 관계형 데이터베이스에 가까운 방법이다.
+
+![]()
+
+```java
+// 복합키 비식별 관계 매핑
+@Entity
+@IdClass(ParentId.class) // 관계형 데이터베이스에 가까운 방법, 식별자 클래스 지정
+public class Parent {
+
+    // 복합키 1
+    @Id
+    @Column(name = "PARENT_ID1")
+    private String id1; // ParentId.id1과 연결
+
+    // 복합키 2
+    @Id
+    @Column(name = "PARENT_ID2")
+    private String id2; // ParentId.id2와 연결
+
+    private String name;
+
+    // ...
+}
+```
+
+```java
+// 식별자 클래스 반드시 public
+public class ParentId implements Serializable { // Serializable 반드시 구현
+
+    // 식별자 클래스의 속성명과 사용하는 식별자의 속성명이 일치해야함
+
+    private String id1; // Parent.id1 매핑
+
+    private String id2; // Parent.id2 매핑
+
+    // 기본생성자 반드시 존재
+    public ParentId() {
+    }
+
+    public ParentId(String id1, String id2) {
+        this.id1 = id1;
+        this.id2 = id2;
+    }
+
+    // equals, hashCode 반드시 구현
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ParentId parentId = (ParentId) o;
+
+        if (id1 != null ? !id1.equals(parentId.id1) : parentId.id1 != null) return false;
+        return id2 != null ? id2.equals(parentId.id2) : parentId.id2 == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id1 != null ? id1.hashCode() : 0;
+        result = 31 * result + (id2 != null ? id2.hashCode() : 0);
+        return result;
+    }
+}
+```
+
+`@IdClass`를 사용할 때 식별자 클래스는 아래와 같이 5가지 조건을 만족해야한다.
+1. 식별자 클래스의 속성명과 엔티티에서 사용하는 식별자의 속성명이 같아야 함.
+2. `Serializable` 인터페이스를 구현해야함.
+3. `equals()`, `hashCode()`를 구현해야 함.
+4. 기본 생성자가 있어야 함.
+5. 식별자 클래스는 `public`이어야 함.
+
+#### 3.2.2 @EmbeddedId
+
+`@EmbeddedId`는 객체지향에 가까운 방법이다.
+
+### 3.3 복합키 : 식별 관계 매핑
+
+### 3.4 비식별 관계로 구현
+
+### 3.5 일대일 식별관계
+
+### 3.6 식별, 비식별 관계의 장단점
+
 
 ## 4. 조인 테이블
 
@@ -267,34 +444,6 @@ public class Movie extends Item {
 
 엔티티 하나에 테이블 하나를 매핑하지만 엔티티 하나에 여러 테이블을 매핑하는 방법
 
-
-## 01) 상속관계 매핑
-객체의 상속관계를 데이터베이스에 어떻게 매핑?
-
-- 관계형 데이터베이스에는 객체지향 언어에서 다루는 상속이라는 개념은 X
-- 대신 '슈퍼타입 서브타입 관계'라는 모델링 기법이 객체의 상속개념과 유사함
-- ORM에서 이야기하는 상속관계 매핑은 객체의 상속 구조와 데이터베이스 슈퍼서브타입 관계를 매핑하는 것
-- '슈퍼타입 서브타입' 논리모델을 실제 물리모델인 테이블로 구현할 때 3가지의 방법을 선택할 수 있음
-    1. 각각 테이블로 변환 - 각각 테이블로 만들고 조회할 때 조인 (조인 전략)
-        * 장점 : 테이블 정규화, 외래키 참조 무결성 제약조건 활용, 저장공간 효율적
-        * 단점 : 조인으로 인한 성능저하, 조회쿼리 복잡, 데이터 등록시 insert sql 두번 실행
-    2. 통합 테이블로 변환 - 테이블을 하나만 사용해서 통합 (단일 테이블 전략)
-        * 장점 : 조인이 필요없어 조회 성능이 빠름, 조회쿼리 단순
-        * 단점 : 자식엔티티가 매핑한 칼럼은 모두 null 허용, 단일테이블에 모든것을 저장하기 때문에 오히려 조회성능이 떨어질 수 있음
-        * 특징 : `@DiscriminatorColumn`을 꼭 설정해야함, `@DiscriminatorValue` 미지정시 기본엔티티 이름으로 저장됨
-    3. 서브타입 테이블로 변환 - 서브타입마다 하나의 테이블을 만듬 (테이블 전략)
-        * 장점 : 서브타입을 구분해 처리할 때 효과적, not null 제약조건을 사용할 수 있음
-        * 단점 : 여러 자식테이블을 함께 조회할 때 성능이 느림(SQL에 UNION사용), 자식테이블을 통합해서 쿼리하기 어려움
-        * 특징 : 구분칼럼 사용X
-        * 추천하지않는 전략, 조인이나 단일테이블을 추천한다고한다.
-
-## 02) `@MappedSuperClass`
-등록일, 수정일 같이 여러 엔티티에서 공통으로 사용하는 매핑정보만 상속 받고 싶다면 이 기능을 사용!
-
-- 부모클래스는 테이블과 매핑하지않고, 상속받는 자식클래스에게 매핑정보만 제공하고 싶을 때 사용
-- `@Entity`는 실제 테이블에 매핑되지만 `@MappedSuperClass`는 실제 테이블에 매핑되지 않음
-- 단순히 매핑정보를 상속할 목적으로만 사용
-- `@MappedSuperClass`로 지정한 클래스는 엔티티가 아니기때문에 `em.find()`나 JPQL에서 사용X
 
 ## 03) 복합키와 식별관계 매핑
 데이터베이스의 식별자가 하나 이상일 때 매핑하는 방법!!!

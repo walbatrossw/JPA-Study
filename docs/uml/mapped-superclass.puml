@@ -1,0 +1,44 @@
+@startuml
+
+title @MappedSuperclass 테이블과 객체
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+hide methods
+hide stereotypes
+
+table(MEMBER) {
+    primary_key(ID)
+    NAME
+    EMAIL
+}
+
+table(SELLER) {
+    primary_key(ID)
+    NAME
+    SHOPNAME
+}
+
+
+class BaseEntity {
+    id
+    name
+}
+
+class Member {
+    email
+}
+
+class Seller {
+    shopName
+}
+
+BaseEntity <|-- Member
+BaseEntity <|-- Seller
+
+note "공통 속성 상속" as N0
+
+BaseEntity - N0
+
+@enduml

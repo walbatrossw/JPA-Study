@@ -7,8 +7,8 @@ import javax.persistence.Entity;
 
 //@Entity
 @AttributeOverrides({ // 상속 받은 칼럼명을 다수 변경하고 싶을 경우
-        @AttributeOverride(name = "id", column = @Column(name = "MEMBER_ID")),      // 상속 받은 칼럼명 재정의
-        @AttributeOverride(name = "name", column = @Column(name = "MEMBER_NAME"))   // 상속 받은 칼럼명 재정의
+        @AttributeOverride(name = "id", column = @Column(name = "SELLER_ID")),      // 상속 받은 칼럼명 재정의
+        @AttributeOverride(name = "name", column = @Column(name = "SELLER_NAME"))   // 상속 받은 칼럼명 재정의
 })
 public class Seller extends BaseEntity {
 
