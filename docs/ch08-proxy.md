@@ -1,9 +1,9 @@
-# ch08. 프록시와 연관관계 관리
+# 프록시와 연관관계 관리
 
-## 1) 프록시
+## 1. 프록시
 
 - 프록시 기초 `EntityManager.find()` VS. `EntityManager.getReference()`
-    * `EntityManager.find()` 
+    * `EntityManager.find()`
         - JPA에서 식별자로 엔티티 하나를 조회할 때 사용
         - 영속성 컨텍스에 엔티티가 없으면 데이터베이스를 조회
         - 엔티티를 직접 조회하면 조회한 엔티티를 실제 사용하든 안하든 데이터베이슬 조회
@@ -57,7 +57,7 @@
         Team team = em.getReference(Team.class, "team1"); // 프록시 객체는 식별자 값을 보관
         team.getId(); // 초기화되지 않음(식별자값을 보관하고 있기 때문)
         ```
-        1. 초기화 X : 엔티티 접근 방식을 프로퍼티`@Access(AccessType.PROPERTY)`로 설정한 경우 
+        1. 초기화 X : 엔티티 접근 방식을 프로퍼티`@Access(AccessType.PROPERTY)`로 설정한 경우
         2. 초기화 O : 필드 방식 `@Access(AccessType.FEILD)`로 설정한 경우
             - JPA는 `getId()`메서드가 id만 조회하는지 아니면 다른 필드까지 활용해서 다른 역할까지 수행하는지 알수 없기 때문에 프록시 객체를 초기화 함    
     * 프록시는 연관관계를 설정할 때 유용하게 사용할 수 있음(연관관계 설정시 식별자 값만을 사용하기 때문에 데이터베이스 접근 횟수를 줄임)
@@ -72,15 +72,15 @@
         1. false 리턴 : 초기화 되지 않은 경우
         2. true 리턴 : 이미 초기화 되거나 프록시 인스턴스가 아닌 경우
 
-## 2) 지연 로딩과 즉시 로딩
+## 2. 지연 로딩과 즉시 로딩
 
 - 즉시 로딩 : 엔티티를 조회할 때 연관된 엔티티도 즉시 함께 조회
     * `@ManyToOne(fetch = FetchType.EAGER)`
-    * 즉시 로딩을 최적화하기 위해 가능하면 조인쿼리를 사용 
+    * 즉시 로딩을 최적화하기 위해 가능하면 조인쿼리를 사용
 - 지연 로딩 : 엔티티를 조회할 때 연관된 엔티티는 조회하지 않음, 연관된 엔티티를 실제 사용할 때 조회(프록시로 조회)    
     * `@ManyToOne(fetch = FetchType.LAZY)`
 
-## 3) 지연 로딩 활용
+## 3. 지연 로딩 활용
 
 - JPA 기본 페치 전략
     * 연관된 엔티티가 하나면 즉시 로딩!, 컬렉션이면 지연 로딩!
@@ -94,13 +94,13 @@
     * 컬렉션 즉시 로딩은 항상 외부조인(Outer join)을 사용
     * `FetchType.EAGER`  설정과 조인 전략
         1. `@ManyToOne`, `@OneToOne` : 연관 엔티티가 하나일 경우
-            - `(optional = false)` : 내부조인 
-            - `(optional = true)`  : 외부조인 
+            - `(optional = false)` : 내부조인
+            - `(optional = true)`  : 외부조인
         2. `@OneToMany`, `@OneToMany` : 연관 엔티티가 컬렉션일 경우
             - `(optional = false)` : 외부조인
             - `(optional = true)`  : 외부조인
-             
-## 4) 영속성 전이 : CASCADE
+
+## 4. 영속성 전이 : CASCADE
 특정 엔티티를 영속 상태로 만들 때 연관된 엔티티도 함께 영속 상태로 만들고 싶다면 영속성 전이 기능을 사용, 쉽게 말해 부모엔티티를 저장할 때 자식엔티티도 함께 저장하는 방법!
 
 - 영속성 전이 적용 전 코드
@@ -108,14 +108,14 @@
         ```java
         @Entity
         public class Parent {
-        
+
             @Id
             @GeneratedValue
             private Long id;
-        
+
             @OneToMany(mappedBy = "parent")
             private List<Child> children = new ArrayList<Child>();
-        
+
             // ...
         }
         ```
@@ -126,10 +126,10 @@
             @Id
             @GeneratedValue
             private Long id;
-        
+
             @ManyToOne
             private Parent parent;
-            
+
             // ...
         }
         ```
@@ -137,11 +137,11 @@
         ```java
         public class NoCascadeMain {
             public static void main(String[] args) {
-        
+
                 EntityManagerFactory emf = Persistence.createEntityManagerFactory("ch08");
                 EntityManager em = emf.createEntityManager();
                 EntityTransaction tx = em.getTransaction();
-        
+
                 try {
                     tx.begin();
                     // 비지니스 로직
@@ -155,24 +155,24 @@
                 }
                 emf.close();
             }
-        
+
             private static void saveNoCascade(EntityManager em) {
                 // 부모 엔티티 저장
                 Parent parent = new Parent();
                 em.persist(parent);
-        
+
                 // 자식 엔티티 1 저장
                 Child child1 = new Child();
                 child1.setParent(parent);
                 parent.getChildren().add(child1);
                 em.persist(child1);
-        
+
                 // 자식 엔티티 2 저장
                 Child child2 = new Child();
                 child2.setParent(parent);
                 parent.getChildren().add(child2);
                 em.persist(child2);
-        
+
                 // JPA에서 엔티티를 저장할 때 연관된 모든 엔티티는 영속 상태이어야 함
                 // 부모 엔티티를 영속상태로 만들고 나머지 두 자식 엔티티도 영속상태로 만듬
                 // 영속성 전이를 사용하면 부모만 영속상태로 만들면 연관된 자식 엔티티도 함께 영속상태로 만들 수 있음
@@ -189,11 +189,11 @@
         ```java
         public class CascadeMain {
             public static void main(String[] args) {
-        
+
                 EntityManagerFactory emf = Persistence.createEntityManagerFactory("ch08");
                 EntityManager em = emf.createEntityManager();
                 EntityTransaction tx = em.getTransaction();
-        
+
                 try {
                     tx.begin();
                     // 비지니스 로직
@@ -207,21 +207,21 @@
                 }
                 emf.close();
             }
-        
+
             private static void saveWithCascade(EntityManager em) {
-        
+
                 Child child1 = new Child();
                 Child child2 = new Child();
-        
+
                 Parent parent = new Parent();
                 child1.setParent(parent);   // 연관관계 추가
                 child2.setParent(parent);   // 연관관계 추가
                 parent.getChildren().add(child1);
                 parent.getChildren().add(child2);
-        
+
                 // 부모, 연관된 엔티티(자식엔티티) 저장
                 em.persist(parent);
-        
+
             }
         }
         ```
@@ -234,7 +234,7 @@
             Parent findParent = em.find(Parent.class, 1L);
             Child findChild1 = em.find(Child.class, 1L);
             Child findChild2 = em.find(Child.class, 2L);
-    
+
             em.remove(findChild1);
             em.remove(findChild2);
             em.remove(findParent);
@@ -242,7 +242,7 @@
         ```
     2. 영속성 전이 적용
         ```java
-        @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE); // 영속성 전이 삭제 옵션 
+        @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE); // 영속성 전이 삭제 옵션
         ```
         ```java
         private static void removeWithCascade(EntityManager em) {
@@ -263,30 +263,29 @@
         ```
     * `CascadeType.PERSIST`, `CascadeType.REMOVE`는 `persist()`, `remove()`를 실행할 때 전이가 발생하지 않고 플러시를 호출할 때 전이가 발생
 
-## 5) 고아객체
+## 5. 고아객체
 JPA는 부모 엔티티와 연관관계 끊어진 자식 엔티티를 자동으로 삭제하는 기능을 제공하는데 이것을 고아 객체(ORPHAN) 제거라고 함
 
 - 고아 객체 제거 기능 설정
     ```java
     @Entity
     public class Parent {
-    
+
         @Id
         @GeneratedValue
         private Long id;
-    
+
         @OneToMany(mappedBy = "parent", orphanRemoval = true) // 고아객체 제거
         private List<Child> children = new ArrayList<Child>();
-    
+
         // ...
     }
     ```
 - 참조가 제거된 엔티티는 다른 곳에서 참조하지 않는 고아 객체로 보고 삭제하는 기능
 
-## 6) 정리
+## 6. 정리
 
 - JPA 구현체들은 객체 그래프를 탐색할 수 있도록 지원하는데 프록시 기술을 사용
 - 객체를 조회할 때 연관된 객체를 즉시 로딩하는 방법을 즉시로딩, 연관된 객체를 지연해서 로딩하는 방법을 지연로딩
 - 객체를 저장하거나 삭제할 때 연관된 객체도 함께 저장하거나 삭제할 수 있는데 이것을 영속성 전이라고 함
 - 부모 엔티티와 연관관계가 끊어진 자식 엔티티를 자동으로 삭제하려면 고아 객체 제거 기능을 사용
-
